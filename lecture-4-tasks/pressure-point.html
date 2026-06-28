@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pressure Point — Barometric Forecaster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f6f3ec;
+    --ink:#1f2e2c;
+    --teal:#14524d;
+    --teal-soft:#2a716a;
+    --amber:#c06a16;
+    --amber-soft:#e8a04b;
+    --line:#d9d2c4;
+    --muted:#6b7570;
+    --warn-bg:#fbeede;
+    --calm-bg:#e7efe9;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.5;
+    padding:24px 18px 60px;
+    max-width:560px;
+    margin:0 auto;
+    min-height:100vh;
+  }
+  header{margin-bottom:26px}
+  .eyebrow{
+    font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--teal-soft);font-weight:600;margin-bottom:8px;
+  }
+  h1{
+    font-family:'Fraunces',serif;font-weight:500;
+    font-size:34px;line-height:1.05;letter-spacing:-.01em;
+    color:var(--teal);margin-bottom:8px;
+  }
+  .tagline{font-size:14.5px;color:var(--muted);max-width:46ch}
+
+  .search{display:flex;gap:8px;margin:22px 0 6px}
+  input[type=text]{
+    flex:1;font-family:inherit;font-size:16px;
+    padding:13px 15px;border:1.5px solid var(--line);
+    border-radius:11px;background:#fff;color:var(--ink);
+    transition:border-color .15s;
+  }
+  input[type=text]:focus{outline:none;border-color:var(--teal-soft)}
+  button{
+    font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;
+    border:none;border-radius:11px;transition:transform .08s,opacity .15s;
+  }
+  button:active{transform:scale(.97)}
+  .go{background:var(--teal);color:#fff;padding:0 20px}
+  .geo{
+    background:none;color:var(--teal-soft);font-size:13px;font-weight:500;
+    padding:4px 2px;text-decoration:underline;text-underline-offset:3px;
+  }
+  .geo:hover{color:var(--teal)}
+
+  .status{
+    margin-top:26px;padding:18px;border-radius:13px;
+    background:#fff;border:1px solid var(--line);
+    font-size:14.5px;color:var(--muted);text-align:center;
+  }
+  .status.error{background:var(--warn-bg);color:var(--amber);border-color:var(--amber-soft)}
+  .spinner{
+    display:inline-block;width:15px;height:15px;border:2px solid var(--line);
+    border-top-color:var(--teal);border-radius:50%;
+    animation:spin .7s linear infinite;vertical-align:-3px;margin-right:8px;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .result{margin-top:26px;display:none}
+  .result.show{display:block;animation:rise .4s ease}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  .place{font-size:13px;color:var(--muted);margin-bottom:14px}
+  .place strong{color:var(--ink);font-weight:600}
+
+  .verdict{
+    padding:18px 20px;border-radius:14px;margin-bottom:22px;
+    display:flex;gap:14px;align-items:flex-start;
+  }
+  .verdict.warn{background:var(--warn-bg)}
+  .verdict.calm{background:var(--calm-bg)}
+  .vicon{font-size:22px;line-height:1.2;flex-shrink:0}
+  .vtitle{font-family:'Fraunces',serif;font-size:18px;font-weight:500;margin-bottom:3px}
+  .verdict.warn .vtitle{color:var(--amber)}
+  .verdict.calm .vtitle{color:var(--teal)}
+  .vbody{font-size:14px;color:var(--ink)}
+
+  .stats{display:flex;gap:12px;margin-bottom:22px}
+  .stat{
+    flex:1;background:#fff;border:1px solid var(--line);
+    border-radius:13px;padding:14px 16px;
+  }
+  .slabel{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .svalue{font-family:'Fraunces',serif;font-size:24px;font-weight:500;color:var(--teal)}
+  .svalue small{font-size:13px;color:var(--muted);font-family:'Inter',sans-serif;font-weight:400}
+  .svalue.amber{color:var(--amber)}
+
+  .chartwrap{
+    background:#fff;border:1px solid var(--line);
+    border-radius:14px;padding:16px 12px 10px;margin-bottom:18px;
+  }
+  .chart-title{font-size:12px;color:var(--muted);margin:0 6px 8px;letter-spacing:.03em}
+  svg{display:block;width:100%;height:auto}
+
+  .legend{display:flex;gap:18px;justify-content:center;font-size:12px;color:var(--muted);margin-top:4px}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .swatch{width:11px;height:11px;border-radius:3px;display:inline-block}
+
+  .disclaimer{
+    font-size:12px;color:var(--muted);line-height:1.55;
+    margin-top:30px;padding-top:18px;border-top:1px solid var(--line);
+  }
+  footer{margin-top:24px;font-size:11.5px;color:var(--muted);text-align:center}
+  footer a{color:var(--teal-soft)}
+
+  @media(max-width:420px){
+    h1{font-size:29px}
+    .stats{flex-direction:column}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">Barometric Forecast</div>
+  <h1>Pressure&nbsp;Point</h1>
+  <p class="tagline">Falling air pressure is a known trigger for migraines, joint pain, and low mood. See the swings coming before your head does.</p>
+</header>
+
+<div class="search">
+  <input type="text" id="city" placeholder="Enter a city…" autocomplete="off" spellcheck="false">
+  <button class="go" id="goBtn">Check</button>
+</div>
+<button class="geo" id="geoBtn">Use my location</button>
+
+<div id="status" class="status" style="display:none"></div>
+
+<div id="result" class="result">
+  <div class="place" id="place"></div>
+  <div class="verdict" id="verdict">
+    <div class="vicon" id="vicon"></div>
+    <div>
+      <div class="vtitle" id="vtitle"></div>
+      <div class="vbody" id="vbody"></div>
+    </div>
+  </div>
+  <div class="stats">
+    <div class="stat">
+      <div class="slabel">Now</div>
+      <div class="svalue" id="nowP"></div>
+    </div>
+    <div class="stat">
+      <div class="slabel">Biggest swing ahead</div>
+      <div class="svalue" id="swingP"></div>
+    </div>
+  </div>
+  <div class="chartwrap">
+    <div class="chart-title">Surface pressure · next 48 hours</div>
+    <div id="chart"></div>
+    <div class="legend">
+      <span><i class="swatch" style="background:var(--teal)"></i>pressure</span>
+      <span><i class="swatch" style="background:var(--amber-soft)"></i>trigger window</span>
+    </div>
+  </div>
+  <p class="disclaimer">This is informational, not medical advice. Pressure sensitivity varies widely between people — many feel nothing, some are very reactive. The flagged threshold (a drop of roughly 5 hPa or more within six hours) reflects commonly cited migraine research, not a diagnosis. If headaches or pain are frequent, talk to a clinician.</p>
+</div>
+
+<footer>Data from <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a> · free &amp; open, no key required</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+const statusEl = $('status'), resultEl = $('result');
+
+function showStatus(html, isError){
+  statusEl.style.display='block';
+  statusEl.className = 'status' + (isError?' error':'');
+  statusEl.innerHTML = html;
+  resultEl.classList.remove('show');
+}
+function loading(msg){ showStatus('<span class="spinner"></span>'+msg, false); }
+
+async function geocode(name){
+  const u = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=1&language=en&format=json`;
+  const r = await fetch(u);
+  if(!r.ok) throw new Error('geocode');
+  const d = await r.json();
+  if(!d.results || !d.results.length) throw new Error('notfound');
+  return d.results[0];
+}
+
+async function getPressure(lat, lon){
+  const u = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=surface_pressure&forecast_days=3&timezone=auto`;
+  const r = await fetch(u);
+  if(!r.ok) throw new Error('forecast');
+  return r.json();
+}
+
+// Find the start hour index closest to "now" using the API's local time strings
+function nowIndex(times){
+  const now = Date.now();
+  let best=0, diff=Infinity;
+  times.forEach((t,i)=>{
+    const dt = Math.abs(new Date(t).getTime() - now);
+    if(dt<diff){diff=dt;best=i;}
+  });
+  return best;
+}
+
+// Detect 6-hour windows with a pressure change >= 5 hPa. Returns array of {start,end,delta}
+function findTriggers(p, start, end){
+  const win=[];
+  for(let i=start;i+6<=end;i++){
+    const delta = p[i+6]-p[i];
+    if(Math.abs(delta)>=5){
+      win.push({start:i, end:i+6, delta});
+    }
+  }
+  // merge overlapping windows
+  const merged=[];
+  win.forEach(w=>{
+    const last=merged[merged.length-1];
+    if(last && w.start<=last.end){
+      last.end=Math.max(last.end,w.end);
+      if(Math.abs(w.delta)>Math.abs(last.delta)) last.delta=w.delta;
+    } else merged.push({...w});
+  });
+  return merged;
+}
+
+function fmtTime(iso){
+  const d=new Date(iso);
+  return d.toLocaleString(undefined,{weekday:'short',hour:'numeric'});
+}
+
+function drawChart(times, p, start, end, triggers){
+  const W=520, H=200, padL=38, padR=12, padT=14, padB=26;
+  const n=end-start;
+  const xs=p.slice(start,end);
+  const min=Math.min(...xs)-2, max=Math.max(...xs)+2;
+  const X=i=> padL + (i/(n-1))*(W-padL-padR);
+  const Y=v=> padT + (1-(v-min)/(max-min))*(H-padT-padB);
+
+  let svg=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" aria-label="pressure chart">`;
+
+  // trigger bands
+  triggers.forEach(t=>{
+    const x1=X(t.start-start), x2=X(t.end-start);
+    svg+=`<rect x="${x1.toFixed(1)}" y="${padT}" width="${(x2-x1).toFixed(1)}" height="${H-padT-padB}" fill="#e8a04b" opacity="0.22" rx="2"/>`;
+  });
+
+  // y gridlines + labels
+  for(let g=0;g<=2;g++){
+    const v=min+(max-min)*g/2;
+    const y=Y(v);
+    svg+=`<line x1="${padL}" y1="${y.toFixed(1)}" x2="${W-padR}" y2="${y.toFixed(1)}" stroke="#e6e0d2" stroke-width="1"/>`;
+    svg+=`<text x="${padL-6}" y="${(y+4).toFixed(1)}" font-size="10" fill="#9aa39d" text-anchor="end" font-family="Inter,sans-serif">${Math.round(v)}</text>`;
+  }
+
+  // line path
+  let d='';
+  xs.forEach((v,i)=>{ d+=(i?'L':'M')+X(i).toFixed(1)+' '+Y(v).toFixed(1)+' '; });
+  svg+=`<path d="${d}" fill="none" stroke="#14524d" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>`;
+
+  // "now" dot
+  svg+=`<circle cx="${X(0).toFixed(1)}" cy="${Y(xs[0]).toFixed(1)}" r="4" fill="#14524d"/>`;
+
+  // x labels: every ~12h
+  for(let i=0;i<n;i+=12){
+    svg+=`<text x="${X(i).toFixed(1)}" y="${H-8}" font-size="9.5" fill="#9aa39d" text-anchor="middle" font-family="Inter,sans-serif">${fmtTime(times[start+i])}</text>`;
+  }
+  svg+=`</svg>`;
+  $('chart').innerHTML=svg;
+}
+
+function render(place, data){
+  const times=data.hourly.time, p=data.hourly.surface_pressure;
+  const start=nowIndex(times);
+  const end=Math.min(start+48, times.length);
+  const triggers=findTriggers(p, start, end);
+
+  $('place').innerHTML = `<strong>${place.name}${place.admin1?', '+place.admin1:''}</strong> · ${place.country||''}`;
+  $('nowP').innerHTML = `${Math.round(p[start])}<small> hPa</small>`;
+
+  // biggest swing
+  let big={delta:0};
+  for(let i=start;i+6<=end;i++){
+    const dl=p[i+6]-p[i];
+    if(Math.abs(dl)>Math.abs(big.delta)) big={delta:dl, at:i};
+  }
+  const swingEl=$('swingP');
+  swingEl.innerHTML = `${big.delta>0?'+':''}${big.delta.toFixed(1)}<small> hPa / 6h</small>`;
+  swingEl.className = 'svalue' + (Math.abs(big.delta)>=5?' amber':'');
+
+  // verdict
+  const v=$('verdict');
+  if(triggers.length){
+    const worst=triggers.reduce((a,b)=>Math.abs(b.delta)>Math.abs(a.delta)?b:a);
+    const dir = worst.delta<0 ? 'drop' : 'rise';
+    v.className='verdict warn';
+    $('vicon').textContent='⚠️';
+    $('vtitle').textContent = `Sharp pressure ${dir} ahead`;
+    $('vbody').innerHTML = `Around <strong>${fmtTime(times[worst.start])}</strong>, pressure ${dir}s about ${Math.abs(worst.delta).toFixed(0)} hPa over six hours — a window commonly linked to migraine and joint pain. If you're sensitive, consider pre-medicating, hydrating, and easing your schedule.`;
+  } else {
+    v.className='verdict calm';
+    $('vicon').textContent='✓';
+    $('vtitle').textContent='Stable pressure ahead';
+    $('vbody').textContent='No sharp swings in the next 48 hours. Low risk for pressure-triggered symptoms — though everyone reacts differently.';
+  }
+
+  drawChart(times, p, start, end, triggers);
+  statusEl.style.display='none';
+  resultEl.classList.add('show');
+}
+
+async function runByCity(){
+  const name=$('city').value.trim();
+  if(!name){ $('city').focus(); return; }
+  try{
+    loading('Finding '+name+'…');
+    const place=await geocode(name);
+    loading('Reading the barometer…');
+    const data=await getPressure(place.latitude, place.longitude);
+    render(place, data);
+  }catch(e){
+    if(e.message==='notfound') showStatus(`Couldn't find “${name}”. Try a nearby larger city or check the spelling.`, true);
+    else showStatus('Something went wrong reaching the weather service. Check your connection and try again.', true);
+  }
+}
+
+async function runByGeo(){
+  if(!navigator.geolocation){ showStatus('Location isn’t available in this browser. Type a city instead.', true); return; }
+  loading('Getting your location…');
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    try{
+      const {latitude,longitude}=pos.coords;
+      loading('Reading the barometer…');
+      const data=await getPressure(latitude,longitude);
+      render({name:'Your location', admin1:'', country:''}, data);
+    }catch(e){
+      showStatus('Couldn’t reach the weather service. Try again.', true);
+    }
+  }, err=>{
+    const insecure = location.protocol==='file:' || (location.protocol!=='https:' && location.hostname!=='localhost');
+    if(insecure){
+      showStatus('Browsers only allow location on secure (https) pages. Opening the file directly blocks it — type a city below, or it’ll work once deployed to Netlify.', true);
+    } else if(err.code===1){
+      showStatus('Location is blocked for this page. Allow it via the icon in the address bar and reload — or just type a city.', true);
+    } else {
+      showStatus('Couldn’t get your location (it may have timed out). Type a city instead.', true);
+    }
+  }, {timeout:10000});
+}
+
+$('goBtn').addEventListener('click', runByCity);
+$('geoBtn').addEventListener('click', runByGeo);
+$('city').addEventListener('keydown', e=>{ if(e.key==='Enter') runByCity(); });
+</script>
+</body>
+</html>
