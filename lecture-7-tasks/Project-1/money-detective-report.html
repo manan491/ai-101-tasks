@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Money Detective — Case Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1c1a17;
+    --paper:#f6f3ec;
+    --card:#fffdf8;
+    --line:#d8d2c4;
+    --muted:#6f6a5f;
+    --seal:#8a2f24;      /* case-stamp red */
+    --seal-soft:#f3e2df;
+    --ok:#2f6b4f;        /* verified green */
+    --flag:#9a6a12;      /* watch amber */
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Newsreader",Georgia,serif;
+    font-size:17px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    padding:40px 20px;
+  }
+  .sheet{
+    max-width:760px;
+    margin:0 auto;
+    background:var(--card);
+    border:1px solid var(--line);
+    padding:52px 56px 46px;
+    box-shadow:0 1px 0 rgba(0,0,0,.03),0 18px 40px -28px rgba(0,0,0,.35);
+  }
+
+  /* Masthead */
+  .head{
+    display:flex;justify-content:space-between;align-items:flex-start;
+    border-bottom:2px solid var(--ink);padding-bottom:16px;
+  }
+  .kicker{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--muted);
+  }
+  h1{
+    font-size:40px;line-height:1.02;font-weight:600;margin:6px 0 0;
+    letter-spacing:-.01em;
+  }
+  .stamp{
+    flex-shrink:0;margin-left:20px;margin-top:2px;
+    border:1.5px solid var(--seal);color:var(--seal);
+    font-family:"IBM Plex Mono",monospace;font-size:10px;font-weight:600;
+    letter-spacing:.14em;text-transform:uppercase;
+    padding:7px 10px;border-radius:3px;transform:rotate(3deg);
+    text-align:center;line-height:1.35;
+  }
+  .meta{
+    font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted);
+    letter-spacing:.05em;margin-top:12px;display:flex;gap:22px;flex-wrap:wrap;
+  }
+
+  /* Verdict banner */
+  .verdict{
+    margin:30px 0 34px;padding:20px 24px;
+    background:var(--seal-soft);border:1px solid #e3c7c2;border-left:4px solid var(--seal);
+  }
+  .verdict .lbl{
+    font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--seal);
+  }
+  .verdict p{margin:6px 0 0;font-size:21px;line-height:1.35;font-weight:500;}
+
+  /* Findings */
+  .finding{
+    padding:22px 0;border-bottom:1px solid var(--line);
+    display:grid;grid-template-columns:34px 1fr;gap:18px;
+  }
+  .finding:last-of-type{border-bottom:none;}
+  .no{
+    font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;
+    color:var(--muted);padding-top:4px;
+  }
+  .finding h2{
+    margin:0;font-size:14px;font-family:"IBM Plex Mono",monospace;
+    letter-spacing:.12em;text-transform:uppercase;font-weight:600;
+  }
+  .amount{font-size:15px;font-family:"IBM Plex Mono",monospace;color:var(--seal);font-weight:600;}
+  .finding p{margin:8px 0 0;color:#37332c;}
+  .detail{
+    margin-top:12px;font-family:"IBM Plex Mono",monospace;font-size:13px;
+    background:var(--paper);border:1px solid var(--line);padding:10px 12px;
+    color:#413c33;
+  }
+  .tag{
+    display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:10px;
+    letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:2px;
+    margin-left:8px;vertical-align:2px;
+  }
+  .tag.act{background:var(--seal);color:#fff;}
+  .tag.watch{background:#f4ead2;color:var(--flag);border:1px solid #e2cf9f;}
+
+  /* Verify strip */
+  .verify{
+    margin-top:34px;padding-top:22px;border-top:2px solid var(--ink);
+  }
+  .verify h3{
+    font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--ok);margin:0 0 14px;
+  }
+  table{width:100%;border-collapse:collapse;font-size:14px;}
+  td{padding:7px 0;border-bottom:1px dotted var(--line);}
+  td.k{font-family:"Newsreader",serif;color:#37332c;}
+  td.v{text-align:right;font-family:"IBM Plex Mono",monospace;font-weight:500;white-space:nowrap;}
+  .check{color:var(--ok);}
+
+  .foot{
+    margin-top:26px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;
+    letter-spacing:.05em;color:var(--muted);line-height:1.6;
+  }
+
+  @media print{
+    body{background:#fff;padding:0;}
+    .sheet{border:none;box-shadow:none;max-width:100%;padding:24px 8px;}
+  }
+  @media (max-width:560px){
+    body{padding:20px 8px;}
+    .sheet{padding:34px 24px;}
+    h1{font-size:31px;}
+    .finding{grid-template-columns:24px 1fr;gap:12px;}
+  }
+</style>
+</head>
+<body>
+  <div class="sheet">
+
+    <div class="head">
+      <div>
+        <div class="kicker">Personal Finance · Case Report</div>
+        <h1>Money Detective</h1>
+      </div>
+      <div class="stamp">Case<br>Closed</div>
+    </div>
+    <div class="meta">
+      <span>PERIOD · JUN–SEP 2025</span>
+      <span>ROWS EXAMINED · 28</span>
+      <span>METHOD · same-day duplicate + cross-month recurrence</span>
+    </div>
+
+    <div class="verdict">
+      <div class="lbl">Verdict</div>
+      <p>One real leak found: a ₨650 Foodpanda charge billed twice on the same day. Dispute it, then decide if you still need both PrimeVideo and Spotify.</p>
+    </div>
+
+    <div class="finding">
+      <div class="no">01</div>
+      <div>
+        <h2>The Double Charge <span class="tag act">Act on this</span></h2>
+        <p>The clearest leak. Two identical Foodpanda charges landed on the very same day — same vendor, same amount. That is the signature of a billing glitch or an accidental second order, not normal repeat spending.</p>
+        <div class="detail">2025-07-08 · Foodpanda · <span class="amount">−650</span> · appears ×2 → one is recoverable</div>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="no">02</div>
+      <div>
+        <h2>The Forgotten Subscriptions <span class="tag watch">Review</span></h2>
+        <p>Two streaming charges reappear in all four months at a fixed price — the classic "set it and forgot it" bleed. Together they cost ₨498 every month whether or not you used them.</p>
+        <div class="detail">PrimeVideo <span class="amount">−199</span>/mo · Spotify <span class="amount">−299</span>/mo · Bank service fee <span class="amount">−50</span>/mo</div>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="no">03</div>
+      <div>
+        <h2>The Price Creep <span class="tag watch">Watch</span></h2>
+        <p>Not a leak yet, but worth an eye. Careem rose from ₨300 to ₨350 in August, and Foodpanda orders drift between ₨650 and ₨700 — small climbs that add up quietly over a term.</p>
+        <div class="detail">Careem ride · −300 → −350 · Foodpanda · −650 ↔ −700</div>
+      </div>
+    </div>
+
+    <div class="verify">
+      <h3>✓ Checked against numbers you already know</h3>
+      <table>
+        <tr><td class="k">Total income (4× pocket money + 2× tutoring)</td><td class="v check">+23,000 ✓</td></tr>
+        <tr><td class="k">Total spending</td><td class="v">−7,492</td></tr>
+        <tr><td class="k">Net balance</td><td class="v">+15,508</td></tr>
+        <tr><td class="k">July spending (incl. the double charge)</td><td class="v">−2,148</td></tr>
+      </table>
+    </div>
+
+    <div class="foot">
+      A charge is flagged RECURRING when the same name appears in 2+ months, and DUPLICATE only when the date, name, and amount all match — which is why two ₨700 meals on different days are left alone, but the same-day ₨650 pair is caught. Amounts in PKR. Re-run monthly on fresh data with the saved script.
+    </div>
+
+  </div>
+</body>
+</html>

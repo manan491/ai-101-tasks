@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Money Detective Report</title>
+<style>
+  :root{
+    --bg:#0f172a; --card:#1b2236; --card2:#222a42; --ink:#e9ecf8; --muted:#9aa3c4;
+    --line:#313a5c; --green:#2fbf71; --red:#f4655d; --amber:#ffd166; --blue:#5b8cff; --violet:#9b6bff;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh; padding:28px 18px 44px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink); line-height:1.5;
+    background:
+      radial-gradient(900px 420px at 12% -8%, rgba(91,140,255,.18), transparent 60%),
+      radial-gradient(800px 420px at 95% -5%, rgba(47,191,113,.16), transparent 60%),
+      var(--bg);
+  }
+  .wrap{max-width:780px;margin:0 auto}
+  .eyebrow{color:var(--amber);font-weight:800;letter-spacing:.14em;font-size:.72rem;text-transform:uppercase;margin:0 0 4px}
+  h1{font-size:clamp(1.8rem,6vw,2.4rem);margin:0 0 4px;letter-spacing:-.02em}
+  .sub{color:var(--muted);margin:0 0 22px}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:22px}
+  .stat{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:16px;padding:16px 14px}
+  .stat .n{font-size:1.5rem;font-weight:800;letter-spacing:-.02em}
+  .stat .l{color:var(--muted);font-size:.78rem;margin-top:2px}
+  .stat.green .n{color:var(--green)}
+  h2{font-size:.82rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:24px 0 10px}
+  .catches{display:grid;gap:12px}
+  .catch{display:flex;gap:14px;align-items:flex-start;background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-left:4px solid var(--red);border-radius:14px;padding:14px 16px}
+  .catch .ico{font-size:1.4rem;line-height:1}
+  .catch h3{margin:0 0 2px;font-size:1.02rem}
+  .catch p{margin:0;color:var(--muted);font-size:.92rem}
+  .catch .verb{color:var(--amber);font-weight:700}
+  .bars{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:16px;padding:18px}
+  .row{display:flex;align-items:center;gap:12px;margin:10px 0}
+  .row .name{width:130px;flex:none;font-size:.9rem}
+  .row .track{flex:1;height:14px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden}
+  .row .fill{height:100%;border-radius:999px}
+  .row .amt{width:88px;flex:none;text-align:right;font-variant-numeric:tabular-nums;font-weight:700;font-size:.9rem}
+  .forecast{margin-top:22px;background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:16px;padding:18px}
+  .forecast .big{font-size:1.5rem;font-weight:800;color:var(--green)}
+  .verdict{margin-top:18px;padding:16px 18px;border-radius:14px;background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.3);color:#ffe6a3;font-size:1rem}
+  .check{margin-top:18px;background:rgba(47,191,113,.06);border:1px solid rgba(47,191,113,.25);border-radius:14px;padding:16px 18px}
+  .check h2{color:var(--green);margin-top:0}
+  .check table{width:100%;border-collapse:collapse;font-size:.88rem}
+  .check td{padding:6px 0;border-bottom:1px dotted var(--line);color:var(--muted)}
+  .check td.v{text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;font-weight:600}
+  footer{color:var(--muted);font-size:.74rem;text-align:center;margin-top:24px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">🕵️ Money Detective · 4 months hunted</p>
+  <h1>Where your money actually went</h1>
+  <p class="sub">You felt broke. Here's what the code found that you didn't know.</p>
+
+  <div class="stats">
+    <div class="stat green"><div class="n">Rs 15,508</div><div class="l">in your wallet now</div></div>
+    <div class="stat"><div class="n">Rs 23,000</div><div class="l">money in</div></div>
+    <div class="stat"><div class="n">Rs 7,492</div><div class="l">money out</div></div>
+  </div>
+
+  <h2>🔎 The catch — 3 things you didn't know</h2>
+  <div class="catches">
+    <div class="catch">
+      <span class="ico">💳</span>
+      <div><h3>A subscription you forgot: PrimeVideo</h3>
+      <p>Rs 199 every month, quietly — <strong>Rs 796 gone so far</strong>. <span class="verb">Cancel it.</span></p></div>
+    </div>
+    <div class="catch">
+      <span class="ico">⚠️</span>
+      <div><h3>A double charge: Foodpanda, 8 July</h3>
+      <p>The same Rs 650 hit twice on the same day. <span class="verb">Check the order — that's Rs 650 you can dispute.</span></p></div>
+    </div>
+    <div class="catch">
+      <span class="ico">🍔</span>
+      <div><h3>The real leak: food delivery</h3>
+      <p>Rs 4,050 over 4 months — bigger than every subscription combined. <span class="verb">Eat in twice a week.</span></p></div>
+    </div>
+  </div>
+
+  <h2>Where it all went</h2>
+  <div class="bars">
+    <div class="row"><span class="name">Food delivery</span><span class="track"><span class="fill" style="width:100%;background:linear-gradient(90deg,#f4655d,#ff8a5c)"></span></span><span class="amt">4,050</span></div>
+    <div class="row"><span class="name">Subscriptions</span><span class="track"><span class="fill" style="width:49%;background:linear-gradient(90deg,#9b6bff,#5b8cff)"></span></span><span class="amt">1,992</span></div>
+    <div class="row"><span class="name">Transport</span><span class="track"><span class="fill" style="width:31%;background:linear-gradient(90deg,#5b8cff,#36c5d9)"></span></span><span class="amt">1,250</span></div>
+    <div class="row"><span class="name">Bank fee</span><span class="track"><span class="fill" style="width:5%;background:linear-gradient(90deg,#9aa3c4,#6b7299)"></span></span><span class="amt">200</span></div>
+  </div>
+
+  <div class="forecast">
+    <h2 style="margin-top:0">By your next pocket money (Oct 1)</h2>
+    <div class="big">~Rs 13,798 left</div>
+    <p class="sub" style="margin:6px 0 0">…or <strong>Rs 14,448</strong> if that double charge gets refunded. Assumes one more typical month of spending (~Rs 1,710, the average once the duplicate is set aside). Tutoring only showed up 2 of 4 months, so any extra income is upside.</p>
+  </div>
+
+  <div class="verdict">You're actually <strong>net positive every month</strong>. You just <em>feel</em> broke because food delivery nibbles you in small bites — and a subscription you forgot has taken Rs 796.</div>
+
+  <div class="check">
+    <h2>✓ Checked against numbers you already know</h2>
+    <table>
+      <tr><td>Money in (4x pocket money 5,000 + 2x tutoring 1,500)</td><td class="v">23,000</td></tr>
+      <tr><td>Money out (sum of all spending rows)</td><td class="v">7,492</td></tr>
+      <tr><td>Wallet now (in minus out)</td><td class="v">15,508</td></tr>
+      <tr><td>Food + Subs + Transport + Bank</td><td class="v">7,492</td></tr>
+    </table>
+  </div>
+
+  <footer>Built by code I never read, on my own wallet, and checked against numbers I already knew. Categories come only from real transaction rows — nothing invented. The catch is real; this page just keeps the receipt.</footer>
+</div>
+</body>
+</html>
