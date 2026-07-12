@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Organize the Mess</title>
+<style>
+  :root{
+    --bg:#0f172a; --card:#1b2236; --card2:#222a42; --ink:#e9ecf8; --muted:#9aa3c4;
+    --line:#313a5c; --green:#2fbf71; --red:#f4655d; --amber:#ffd166; --blue:#5b8cff; --violet:#9b6bff;
+    --glow1:rgba(91,140,255,.18); --glow2:rgba(47,191,113,.16);
+  }
+  body.light{
+    --bg:#f4f6fb; --card:#ffffff; --card2:#f7f9fd; --ink:#1a2236; --muted:#5a6478;
+    --line:#dfe4ee; --green:#1a9d5a; --red:#d64840; --amber:#b8860b; --blue:#3b6fe0; --violet:#7b52d9;
+    --glow1:rgba(91,140,255,.10); --glow2:rgba(47,191,113,.08);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh; padding:28px 18px 44px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink); line-height:1.5;
+    transition:background .25s ease, color .25s ease;
+    background:
+      radial-gradient(900px 420px at 12% -8%, var(--glow1), transparent 60%),
+      radial-gradient(800px 420px at 95% -5%, var(--glow2), transparent 60%),
+      var(--bg);
+  }
+  .theme-toggle{
+    position:fixed; top:16px; right:16px; z-index:50;
+    display:flex; align-items:center; gap:7px;
+    background:var(--card2); border:1px solid var(--line); color:var(--ink);
+    font:inherit; font-size:.8rem; font-weight:600;
+    padding:8px 13px; border-radius:999px; cursor:pointer;
+    transition:background .2s ease, border-color .2s ease;
+  }
+  .theme-toggle:hover{border-color:var(--muted)}
+  .theme-toggle:focus-visible{outline:2px solid var(--blue); outline-offset:2px}
+  @media print{ .theme-toggle{display:none} }
+  .wrap{max-width:820px;margin:0 auto}
+  .eyebrow{color:var(--amber);font-weight:800;letter-spacing:.14em;font-size:.72rem;text-transform:uppercase;margin:0 0 4px}
+  h1{font-size:clamp(1.8rem,6vw,2.4rem);margin:0 0 4px;letter-spacing:-.02em}
+  .sub{color:var(--muted);margin:0 0 18px}
+  .safety{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 22px}
+  .pill{font-size:.78rem;padding:5px 12px;border-radius:999px;background:color-mix(in srgb, var(--green) 12%, transparent);border:1px solid color-mix(in srgb, var(--green) 35%, transparent);color:var(--green)}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:22px}
+  @media(max-width:620px){.stats{grid-template-columns:1fr}}
+  .stat{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:16px;padding:16px 14px}
+  .stat .n{font-size:1.5rem;font-weight:800;letter-spacing:-.02em}
+  .stat .l{color:var(--muted);font-size:.78rem;margin-top:2px}
+  .stat.amber .n{color:var(--amber)}
+  .stat.green .n{color:var(--green)}
+  h2{font-size:.82rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:24px 0 10px}
+  .group{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-bottom:12px}
+  .ghead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+  .ghead .gt{font-weight:700}
+  .ghead .gc{color:var(--muted);font-size:.82rem}
+  .file{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px dotted var(--line);font-size:.92rem}
+  .file:last-child{border-bottom:none}
+  .badge{font-size:.68rem;font-weight:800;letter-spacing:.05em;padding:2px 8px;border-radius:5px;flex:none}
+  .badge.keep{background:rgba(47,191,113,.16);color:#8ff0bd;border:1px solid rgba(47,191,113,.4)}
+  .badge.del{background:rgba(244,101,93,.14);color:#ffb3ae;border:1px solid rgba(244,101,93,.4)}
+  .fname{flex:1;font-variant-numeric:tabular-nums}
+  .fdim{color:var(--muted);font-size:.82rem;flex:none}
+  .thumbflag{color:var(--amber);font-size:.76rem;margin-left:8px}
+  .skip{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:14px;padding:14px 18px;color:var(--muted);font-size:.9rem}
+  .verdict{margin-top:18px;padding:16px 18px;border-radius:14px;background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.3);color:#ffe6a3;font-size:1rem}
+  .verdict strong{color:#fff}
+  footer{color:var(--muted);font-size:.74rem;text-align:center;margin-top:24px;line-height:1.6}
+</style>
+</head>
+<body>
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle light and dark theme">
+  <span id="themeIcon">☀️</span><span id="themeLabel">Light</span>
+</button>
+<div class="wrap">
+  <p class="eyebrow">🗂️ Organize the Mess · Project 4</p>
+  <h1>The photos I forgot I had</h1>
+  <p class="sub">Perceptual-hash fingerprinting to find duplicate & near-duplicate photos — a dry run, originals untouched.</p>
+
+  <div class="safety">
+    <span class="pill">✓ Backed up first</span>
+    <span class="pill">✓ Read-only on originals</span>
+    <span class="pill">✓ Dry run — nothing deleted</span>
+  </div>
+
+  <div class="stats">
+    <div class="stat amber"><div class="n">2 groups</div><div class="l">of matching photos</div></div>
+    <div class="stat"><div class="n">4 copies</div><div class="l">redundant, could delete</div></div>
+    <div class="stat green"><div class="n">129 KB</div><div class="l">reclaimable safely</div></div>
+  </div>
+
+  <h2>What the fingerprint found</h2>
+
+  <div class="group">
+    <div class="ghead"><span class="gt">Group 1 — city street</span><span class="gc">2 matching images</span></div>
+    <div class="file"><span class="badge keep">KEEP</span><span class="fname">DSC00891.png</span><span class="fdim">1400×1400 · 11.1 KB</span></div>
+    <div class="file"><span class="badge del">DELETE</span><span class="fname">IMG-20250903-WA0007.jpg</span><span class="fdim">1050×1050 · 42.8 KB</span></div>
+    <div style="color:var(--muted);font-size:.8rem;margin-top:8px">A WhatsApp-recompressed copy — not byte-identical, but the same picture.</div>
+  </div>
+
+  <div class="group">
+    <div class="ghead"><span class="gt">Group 2 — beach sunset</span><span class="gc">4 matching images</span></div>
+    <div class="file"><span class="badge keep">KEEP</span><span class="fname">IMG_2043.jpg</span><span class="fdim">1600×1200 · 92.3 KB</span></div>
+    <div class="file"><span class="badge del">DELETE</span><span class="fname">beach_sunset_edited.jpg</span><span class="fdim">1600×1200 · 54.4 KB</span></div>
+    <div class="file"><span class="badge del">DELETE</span><span class="fname">IMG_2043-copy.jpg</span><span class="fdim">800×600 · 28.0 KB</span></div>
+    <div class="file"><span class="badge del">DELETE</span><span class="fname">thumb_2043.jpg</span><span class="fdim">160×120 · 3.8 KB</span><span class="thumbflag">⚑ thumbnail</span></div>
+  </div>
+
+  <h2>Skipped (not deleted, just noted)</h2>
+  <div class="skip"><strong>broken.jpg</strong> — unreadable / corrupt. &nbsp;·&nbsp; <strong>notes.txt</strong> — not an image file.</div>
+
+  <div class="verdict">Found <strong>4 redundant copies</strong> across 2 photo groups, <strong>129 KB</strong> reclaimable. This is a <strong>plan, not an action</strong> — the largest copy is kept in each group, the thumbnail is flagged so it isn't lost by mistake, and nothing is deleted until I approve.</div>
+
+  <footer>Fingerprinted every image with a perceptual hash (pHash), grouped matches within a 5-bit distance, kept the largest per group, and skipped corrupt/non-image files. Backup-first, read-only, dry-run — the safety discipline for letting code touch real files. Verified: reclaimable KB matches the sum of deletable files by hand.</footer>
+</div>
+<script>
+  (function(){
+    var btn = document.getElementById('themeToggle');
+    var icon = document.getElementById('themeIcon');
+    var label = document.getElementById('themeLabel');
+    btn.addEventListener('click', function(){
+      var light = document.body.classList.toggle('light');
+      icon.textContent = light ? '🌙' : '☀️';
+      label.textContent = light ? 'Dark' : 'Light';
+    });
+  })();
+</script>
+</body>
+</html>
