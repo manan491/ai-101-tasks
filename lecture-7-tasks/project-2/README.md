@@ -1,5 +1,7 @@
 # Project 2 — What's My Grade, Really
 
+**Live demo:** https://whats-my-grade-report.netlify.app/
+
 > "Encode the one set of grading rules no app has — your teacher's — and find out where you really stand."
 
 ## The problem it solves
@@ -72,5 +74,6 @@ the final: it counts twice while it beats my midterm, so effort there pays doubl
 ## Files in this folder
 
 - `whats_my_grade.py` — the reusable script (edit scores at the top, re-run through the term)
+- `whats-my-grade-report.html` — the shareable report page (source of the live demo)
 - `Whats_My_Grade_Report.pdf` — one-page report
 - `README.md` — this file

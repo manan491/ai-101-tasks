@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Books Don't Match</title>
+<style>
+  :root{
+    --bg:#0f172a; --card:#1b2236; --card2:#222a42; --ink:#e9ecf8; --muted:#9aa3c4;
+    --line:#313a5c; --green:#2fbf71; --red:#f4655d; --amber:#ffd166; --blue:#5b8cff; --violet:#9b6bff;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh; padding:28px 18px 44px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink); line-height:1.5;
+    background:
+      radial-gradient(900px 420px at 12% -8%, rgba(91,140,255,.18), transparent 60%),
+      radial-gradient(800px 420px at 95% -5%, rgba(47,191,113,.16), transparent 60%),
+      var(--bg);
+  }
+  .wrap{max-width:820px;margin:0 auto}
+  .eyebrow{color:var(--amber);font-weight:800;letter-spacing:.14em;font-size:.72rem;text-transform:uppercase;margin:0 0 4px}
+  h1{font-size:clamp(1.8rem,6vw,2.4rem);margin:0 0 4px;letter-spacing:-.02em}
+  .sub{color:var(--muted);margin:0 0 22px}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
+  @media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}}
+  .stat{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:16px;padding:16px 14px}
+  .stat .n{font-size:1.4rem;font-weight:800;letter-spacing:-.02em}
+  .stat .l{color:var(--muted);font-size:.74rem;margin-top:2px}
+  .stat.green .n{color:var(--green)}
+  .stat.red .n{color:var(--red)}
+  .stat.amber .n{color:var(--amber)}
+  h2{font-size:.82rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:24px 0 10px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+  @media(max-width:680px){.grid2{grid-template-columns:1fr}}
+  .card{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+  .paid-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  .chip{font-size:.86rem;padding:5px 12px;border-radius:999px;background:rgba(47,191,113,.12);border:1px solid rgba(47,191,113,.35);color:#8ff0bd}
+  .note{font-size:.8rem;color:var(--muted);margin-top:10px}
+  .owe{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-left:4px solid var(--red);border-radius:14px;padding:14px 16px;margin-top:12px}
+  .owe h3{margin:0 0 3px;font-size:1.05rem;color:#ffb3ae}
+  .owe p{margin:0;color:var(--muted);font-size:.9rem}
+  .flag{background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.3);border-left:4px solid var(--amber);border-radius:14px;padding:14px 16px;margin-top:12px}
+  .flag h3{margin:0 0 3px;font-size:1.05rem;color:#ffe6a3}
+  .flag p{margin:0;color:var(--muted);font-size:.9rem}
+  .ledger{width:100%;border-collapse:collapse;font-size:.94rem}
+  .ledger td{padding:9px 0;border-bottom:1px dotted var(--line);color:var(--muted)}
+  .ledger td.v{text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;font-weight:700}
+  .ledger tr.gap td{color:#ffb3ae}
+  .ledger tr.gap td.v{color:var(--red)}
+  .ledger tr:last-child td{border-bottom:none}
+  .verdict{margin-top:14px;padding:14px 16px;border-radius:14px;background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.3);color:#ffe6a3;font-size:.95rem}
+  .verdict strong{color:#fff}
+  .followup{margin:8px 0 0;padding-left:20px}
+  .followup li{font-size:.92rem;color:var(--muted);margin:6px 0}
+  .followup strong{color:var(--ink)}
+  footer{color:var(--muted);font-size:.74rem;text-align:center;margin-top:24px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">📒 The Books Don't Match · Project 3</p>
+  <h1>Find the gap, name the person</h1>
+  <p class="sub">Class-trip dues: my hand-counted total vs the messy JazzCash record, reconciled by my own rules.</p>
+
+  <div class="stats">
+    <div class="stat"><div class="n">Rs 4,000</div><div class="l">counted total (target)</div></div>
+    <div class="stat green"><div class="n">Rs 3,500</div><div class="l">dues accounted for</div></div>
+    <div class="stat red"><div class="n">Rs 500</div><div class="l">gap — Usman unpaid</div></div>
+    <div class="stat amber"><div class="n">Rs 500</div><div class="l">unmatched, in limbo</div></div>
+  </div>
+
+  <div class="grid2">
+    <div>
+      <h2>Who's settled</h2>
+      <div class="card">
+        <div style="font-size:.86rem;color:var(--muted)">PAID — 7 of 8 (dues fully covered)</div>
+        <div class="paid-list">
+          <span class="chip">Ali ✓</span><span class="chip">Omar ✓</span><span class="chip">Sara ✓</span>
+          <span class="chip">Bilal ✓</span><span class="chip">Hina ✓</span><span class="chip">Zoya ✓</span>
+          <span class="chip">Ayesha ✓</span>
+        </div>
+        <div class="note">Ali &amp; Omar both covered by Ali's single Rs 1,000 payment (my rule).</div>
+      </div>
+      <div class="owe">
+        <h3>Usman still owes Rs 500</h3>
+        <p>His only payment was Rs 300 "pizza" — a repayment to me, not dues. Ignored per my rule, so his trip dues are unpaid.</p>
+      </div>
+      <div class="flag">
+        <h3>⚑ 0300-unknown — Rs 500, flagged</h3>
+        <p>Blank memo, sender I don't recognize (2025-09-05). Credited to nobody. Don't spend it until I confirm whose it is.</p>
+      </div>
+    </div>
+
+    <div>
+      <h2>The ledger vs my count</h2>
+      <div class="card">
+        <table class="ledger">
+          <tr><td>Counted total (I counted this myself)</td><td class="v">4,000</td></tr>
+          <tr><td>Dues actually accounted for</td><td class="v">3,500</td></tr>
+          <tr class="gap"><td>Gap (target − accounted)</td><td class="v">−500</td></tr>
+          <tr><td>Unmatched money floating</td><td class="v">500</td></tr>
+          <tr><td>Ignored (Usman "pizza", not dues)</td><td class="v">300</td></tr>
+        </table>
+      </div>
+      <div class="verdict">The gap (Rs 500) and the unmatched payment (Rs 500) are equal — but I did <strong>not</strong> assume they cancel. If the unknown 500 is Usman, I'm square; if it's someone else, I'm still short <em>and</em> holding a stranger's money. Two separate open items.</div>
+      <h2 style="margin-top:16px">Follow up with</h2>
+      <ol class="followup">
+        <li><strong>Usman</strong> — collect his Rs 500 trip dues (the 300 was pizza).</li>
+        <li><strong>0300-unknown</strong> — confirm whose payment this is before using it.</li>
+      </ol>
+    </div>
+  </div>
+
+  <footer>Stated my counted total up front, fed the JazzCash record exactly as received, and encoded my own rules: one payment covers two people, a "pizza" repayment isn't dues, and an unrecognized sender is flagged — never guessed.</footer>
+</div>
+</body>
+</html>

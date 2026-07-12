@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>What's My Grade, Really</title>
+<style>
+  :root{
+    --bg:#0f172a; --card:#1b2236; --card2:#222a42; --ink:#e9ecf8; --muted:#9aa3c4;
+    --line:#313a5c; --green:#2fbf71; --red:#f4655d; --amber:#ffd166; --blue:#5b8cff; --violet:#9b6bff;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh; padding:28px 18px 44px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink); line-height:1.5;
+    background:
+      radial-gradient(900px 420px at 12% -8%, rgba(91,140,255,.18), transparent 60%),
+      radial-gradient(800px 420px at 95% -5%, rgba(47,191,113,.16), transparent 60%),
+      var(--bg);
+  }
+  .wrap{max-width:780px;margin:0 auto}
+  .eyebrow{color:var(--amber);font-weight:800;letter-spacing:.14em;font-size:.72rem;text-transform:uppercase;margin:0 0 4px}
+  h1{font-size:clamp(1.8rem,6vw,2.4rem);margin:0 0 4px;letter-spacing:-.02em}
+  .sub{color:var(--muted);margin:0 0 22px}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:22px}
+  .stat{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:16px;padding:16px 14px}
+  .stat .n{font-size:1.5rem;font-weight:800;letter-spacing:-.02em}
+  .stat .l{color:var(--muted);font-size:.78rem;margin-top:2px}
+  .stat.green .n{color:var(--green)}
+  .stat.amber .n{color:var(--amber)}
+  h2{font-size:.82rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:24px 0 10px}
+  .breakdown{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:16px;padding:6px 18px 12px;overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:.92rem;min-width:460px}
+  th{text-align:left;color:var(--muted);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;padding:12px 0 8px;border-bottom:1px solid var(--line)}
+  th.r,td.r{text-align:right;font-variant-numeric:tabular-nums}
+  td{padding:10px 0;border-bottom:1px dotted var(--line)}
+  .part{font-weight:600}
+  .detail{color:var(--muted);font-size:.84rem}
+  .subtotal{font-weight:800}
+  tr.totalrow td{border-top:1px solid var(--line);border-bottom:none;padding-top:12px;font-weight:800;font-size:1.05rem}
+  tr.totalrow .r{color:var(--green)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}
+  @media(max-width:620px){.grid2{grid-template-columns:1fr}.stats{grid-template-columns:1fr}}
+  .card{border-radius:16px;padding:16px 18px}
+  .verify{background:rgba(47,191,113,.06);border:1px solid rgba(47,191,113,.25)}
+  .verify h2{color:var(--green);margin-top:0}
+  .verify p{margin:0;color:var(--muted);font-size:.9rem}
+  .verify strong{color:var(--ink)}
+  .target{background:rgba(255,209,102,.07);border:1px solid rgba(255,209,102,.3)}
+  .target h2{color:var(--amber);margin-top:0}
+  .target .big{font-size:1.5rem;font-weight:800;color:var(--amber);margin:2px 0 6px}
+  .target p{margin:0;color:var(--muted);font-size:.9rem}
+  code{font-family:"SF Mono",Menlo,monospace;background:rgba(255,255,255,.06);padding:1px 6px;border-radius:5px;font-size:.85rem}
+  .verdict{margin-top:18px;padding:16px 18px;border-radius:14px;background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.3);color:#ffe6a3;font-size:1rem}
+  footer{color:var(--muted);font-size:.74rem;text-align:center;margin-top:24px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">🎓 What's My Grade, Really · Project 2</p>
+  <h1>Where I actually stand</h1>
+  <p class="sub">My teacher's exact rules — dropped scores, best-of quizzes, final-replaces-midterm — encoded and run.</p>
+
+  <div class="stats">
+    <div class="stat green"><div class="n">87.05%</div><div class="l">current grade, all rules applied</div></div>
+    <div class="stat amber"><div class="n">need 91</div><div class="l">on the final to reach 90%</div></div>
+    <div class="stat"><div class="n">+3.5 pts</div><div class="l">from final replacing midterm</div></div>
+  </div>
+
+  <h2>The breakdown — each part's subtotal</h2>
+  <div class="breakdown">
+    <table>
+      <tr><th>Part</th><th>Weight</th><th>What counts</th><th class="r">Avg</th><th class="r">Subtotal</th></tr>
+      <tr><td class="part">Homework</td><td>20%</td><td class="detail">drop 45 &amp; 60 → keep 85, 88, 90, 92</td><td class="r">88.75</td><td class="r subtotal">17.75</td></tr>
+      <tr><td class="part">Quizzes</td><td>20%</td><td class="detail">best 8 of 10 (drop 0 &amp; 70)</td><td class="r">88.50</td><td class="r subtotal">17.70</td></tr>
+      <tr><td class="part">Midterm</td><td>25%</td><td class="detail">replaced by final (86 &gt; 72)</td><td class="r">86</td><td class="r subtotal">21.50</td></tr>
+      <tr><td class="part">Final</td><td>35%</td><td class="detail">final exam</td><td class="r">86</td><td class="r subtotal">30.10</td></tr>
+      <tr class="totalrow"><td>Current grade</td><td></td><td></td><td></td><td class="r">87.05%</td></tr>
+    </table>
+  </div>
+
+  <div class="grid2">
+    <div class="card verify">
+      <h2>✓ Checked by hand — homework</h2>
+      <p>Drop the two lowest (45, 60), leaving 85, 88, 90, 92.<br>
+      Sum = 355 ÷ 4 = <strong>88.75</strong> × 0.20 = <strong>17.75</strong>.<br>
+      Matches the script exactly.</p>
+    </div>
+    <div class="card target">
+      <h2>🎯 To reach 90%</h2>
+      <div class="big">~90.9 → aim for 91</div>
+      <p>The final counts <strong>twice</strong> while it beats the midterm (25% + 35% slots), so each point moves the grade by 0.60. A <code>90</code> → 89.45% (short); a <code>91</code> → 90.05% (over).</p>
+    </div>
+  </div>
+
+  <div class="verdict">I'm at <strong>87.05%</strong> right now. The biggest lever is the final: because it replaces the midterm while it's higher, effort there pays double — a <strong>91</strong> lands me at 90%.</div>
+
+  <footer>Encoded my teacher's exact policy and ran it: homework drops two lowest, quizzes take best 8 of 10, and the final replaces the midterm when higher. Verified one category (homework) by hand against the script.</footer>
+</div>
+</body>
+</html>
