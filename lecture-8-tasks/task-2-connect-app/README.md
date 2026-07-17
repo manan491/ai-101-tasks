@@ -59,5 +59,5 @@ The tradeoff I'd be accepting: write access means a wrong edit or a file created
 
 | File | What it is |
 |---|---|
-| `screenshots/01-permission-grant.png` | The connector permission screen |
-| `screenshots/02-drive-summary.png` | The live result pulled from Drive |
+| `refrence-images/picture-1.PNG` | The connector permission screen |
+| `refrence-images/picture-2.PNG` | The live result pulled from Drive |
