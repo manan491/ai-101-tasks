@@ -1,0 +1,575 @@
+<title>The Agent Factory — Study Blueprint</title>
+<style>
+  :root{
+    --bg:#eef2f7; --paper:#ffffff; --ink:#1c2541; --ink-dim:#4a5578;
+    --line:#c7d1e0; --amber:#c97a12; --blue:#2955a3; --ok:#1f7a4d; --bad:#a3293b;
+    --card-shadow: 0 1px 0 rgba(28,37,65,.08);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0b1220; --paper:#141d33; --ink:#e4e9f5; --ink-dim:#9aa6c4;
+      --line:#2a3859; --amber:#f4a53a; --blue:#6ea3ff; --ok:#4fd694; --bad:#ff6b7f;
+      --card-shadow: 0 1px 0 rgba(0,0,0,.4);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0b1220; --paper:#141d33; --ink:#e4e9f5; --ink-dim:#9aa6c4;
+    --line:#2a3859; --amber:#f4a53a; --blue:#6ea3ff; --ok:#4fd694; --bad:#ff6b7f;
+    --card-shadow: 0 1px 0 rgba(0,0,0,.4);
+  }
+  :root[data-theme="light"]{
+    --bg:#eef2f7; --paper:#ffffff; --ink:#1c2541; --ink-dim:#4a5578;
+    --line:#c7d1e0; --amber:#c97a12; --blue:#2955a3; --ok:#1f7a4d; --bad:#a3293b;
+    --card-shadow: 0 1px 0 rgba(28,37,65,.08);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:
+      linear-gradient(var(--bg),var(--bg)),
+      repeating-linear-gradient(0deg, transparent, transparent 23px, var(--line) 24px),
+      repeating-linear-gradient(90deg, transparent, transparent 23px, var(--line) 24px);
+    background-blend-mode:normal, soft-light, soft-light;
+    color:var(--ink);
+    font-family: "Consolas","SFMono-Regular",Menlo,Monaco,monospace;
+    min-height:100vh;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:20px 16px 60px;}
+  header.top{
+    display:flex; align-items:baseline; justify-content:space-between; gap:12px;
+    border-bottom:3px solid var(--ink); padding-bottom:10px; margin-bottom:16px; flex-wrap:wrap;
+  }
+  header.top h1{
+    font-family: Georgia, "Iowan Old Style", "Times New Roman", serif;
+    font-size:1.6rem; letter-spacing:.5px; margin:0; color:var(--ink);
+  }
+  header.top .stamp{
+    font-size:.7rem; color:var(--amber); border:1px solid var(--amber); padding:3px 8px;
+    border-radius:2px; text-transform:uppercase; letter-spacing:1.5px; white-space:nowrap;
+  }
+  /* progress meter */
+  .meter{margin-bottom:16px;}
+  .meter-bar{height:8px; background:var(--paper); border:1px solid var(--line); border-radius:4px; overflow:hidden;}
+  .meter-fill{height:100%; background:var(--amber); width:0%; transition:width .3s ease;}
+  .meter-label{font-size:.72rem; color:var(--ink-dim); margin-top:4px; display:flex; justify-content:space-between;}
+  @media (prefers-reduced-motion: reduce){ .meter-fill{transition:none;} }
+
+  /* index rail */
+  nav.index{
+    display:flex; gap:6px; overflow-x:auto; padding-bottom:8px; margin-bottom:16px;
+    border-bottom:1px solid var(--line);
+  }
+  nav.index button{
+    flex:0 0 auto; background:var(--paper); color:var(--ink-dim); border:1px solid var(--line);
+    border-radius:3px; padding:6px 10px; font:inherit; font-size:.72rem; cursor:pointer;
+    white-space:nowrap;
+  }
+  nav.index button.active{ border-color:var(--amber); color:var(--amber); font-weight:bold; }
+  nav.index button.visited:not(.active){ color:var(--ok); border-color:var(--ok); }
+  nav.index button:focus-visible, button:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+
+  section.card{
+    background:var(--paper); border:1px solid var(--line); border-radius:6px;
+    box-shadow:var(--card-shadow); padding:22px 22px 18px;
+  }
+  section.card .tag{
+    font-size:.68rem; color:var(--amber); letter-spacing:2px; text-transform:uppercase; margin-bottom:4px;
+  }
+  section.card h2{
+    font-family: Georgia, "Iowan Old Style", serif; font-size:1.35rem; margin:0 0 14px;
+    color:var(--ink); border-left:4px solid var(--amber); padding-left:10px;
+  }
+  section.card ul.notes{ margin:0 0 20px; padding-left:20px; line-height:1.55; }
+  section.card ul.notes li{ margin-bottom:8px; color:var(--ink); font-size:.92rem; }
+  section.card ul.notes b{ color:var(--blue); }
+  :root[data-theme="dark"] section.card ul.notes b, @media (prefers-color-scheme: dark){ section.card ul.notes b{ color:var(--amber); } }
+
+  .terms h3{ font-size:.75rem; letter-spacing:1.5px; text-transform:uppercase; color:var(--ink-dim); margin:0 0 8px; }
+  .term{
+    border:1px dashed var(--line); border-radius:4px; margin-bottom:6px; overflow:hidden;
+  }
+  .term button.reveal{
+    width:100%; text-align:left; background:transparent; border:none; color:var(--ink);
+    font:inherit; font-size:.85rem; padding:9px 12px; cursor:pointer; display:flex;
+    justify-content:space-between; align-items:center; gap:8px;
+  }
+  .term button.reveal .plus{ color:var(--amber); font-weight:bold; }
+  .term .def{
+    max-height:0; overflow:hidden; transition:max-height .25s ease, padding .25s ease;
+    font-size:.83rem; color:var(--ink-dim); padding:0 12px;
+  }
+  .term.open .def{ max-height:200px; padding:0 12px 10px; }
+  @media (prefers-reduced-motion: reduce){ .term .def{ transition:none; } }
+
+  .nav-controls{ display:flex; justify-content:space-between; margin-top:18px; gap:10px; }
+  .nav-controls button{
+    background:var(--ink); color:var(--paper); border:none; border-radius:4px;
+    padding:10px 18px; font:inherit; font-size:.85rem; cursor:pointer;
+  }
+  :root[data-theme="dark"] .nav-controls button, @media (prefers-color-scheme: dark){ .nav-controls button{ background:var(--amber); color:#0b1220; } }
+  .nav-controls button:disabled{ opacity:.35; cursor:default; }
+
+  .quiz{ margin-top:34px; padding-top:20px; border-top:3px double var(--ink); }
+  .quiz h2{ font-family: Georgia, serif; font-size:1.3rem; }
+  .qcard{ background:var(--paper); border:1px solid var(--line); border-radius:6px; padding:18px; margin-bottom:16px; }
+  .qcard p.q{ font-weight:bold; margin-top:0; }
+  .qcard .opt{
+    display:block; width:100%; text-align:left; background:transparent; border:1px solid var(--line);
+    border-radius:4px; padding:9px 12px; margin-bottom:8px; font:inherit; font-size:.85rem; cursor:pointer; color:var(--ink);
+  }
+  .qcard .opt.correct{ border-color:var(--ok); color:var(--ok); font-weight:bold; }
+  .qcard .opt.wrong{ border-color:var(--bad); color:var(--bad); }
+  .qcard .opt:disabled{ cursor:default; }
+  .explain{ font-size:.83rem; color:var(--ink-dim); margin-top:8px; border-left:3px solid var(--blue); padding-left:10px; display:none; }
+  .explain.show{ display:block; }
+  .score{ text-align:center; font-size:1.1rem; font-weight:bold; margin-top:10px; }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <h1>⚙ The Agent Factory — Study Blueprint</h1>
+    <span class="stamp">Thesis Notes</span>
+  </header>
+
+  <div class="meter">
+    <div class="meter-bar"><div class="meter-fill" id="meterFill"></div></div>
+    <div class="meter-label"><span id="meterText">0 / 15 cards visited</span><span>Use ← → or tap the rail</span></div>
+  </div>
+
+  <nav class="index" id="indexRail"></nav>
+
+  <section class="card" id="cardHost"></section>
+
+  <div class="nav-controls">
+    <button id="prevBtn">← Prev</button>
+    <button id="nextBtn">Next →</button>
+  </div>
+
+  <div class="quiz" id="quizSection">
+    <h2>◆ Test Your Understanding</h2>
+    <div id="quizHost"></div>
+    <div class="score" id="scoreLine" style="display:none;"></div>
+  </div>
+</div>
+
+<script>
+const CARDS = [
+{
+  tag: "01 · Thesis Core",
+  title: "The Agent Factory Thesis",
+  notes: [
+    "In the AI era, the most valuable companies won't sell software — they'll <b>manufacture AI employees</b> (Digital FTEs).",
+    "These companies are called <b>AI-Native Companies</b>: the workforce is mostly AI, and the product is whatever that workforce ships.",
+    "<b>You don't buy from these companies — you hire them</b>, the same way you'd hire an accounting firm.",
+    "AI employees are moving toward becoming <b>economic actors in their own right</b> — buying compute, data, and services autonomously.",
+    "The <b>Agent Factory</b> is the process that builds these AI-Native Companies."
+  ],
+  terms: [
+    ["Digital FTE", "An AI employee built to do a specific job (FTE = full-time employee); also called an AI Worker."],
+    ["AI-Native Company", "A firm whose workforce is mostly AI, producing software, decisions, services, or transactions."],
+    ["Agent Factory", "The process — methods and architecture — for designing, manufacturing, and deploying AI Workers."],
+    ["Identic AI", "Don Tapscott's term for a personal agent that carries a human's identity, judgment, and authority."],
+    ["Economic Actor", "An AI agent that can autonomously buy services, pay for compute, and gather data without human approval per step."]
+  ]
+},
+{
+  tag: "02 · Payment Rails",
+  title: "Four Protocols That Let Agents Pay",
+  notes: [
+    "The economic-actor trajectory isn't a prediction — <b>payment rails already exist in production (2025–2026)</b>.",
+    "<b>ACP</b> (OpenAI + Stripe) powers ChatGPT's Instant Checkout — authorizes and clears in-chat purchases.",
+    "<b>AP2</b> (Google) is a cross-vendor standard using <b>cryptographically signed mandates</b> — a signed permission slip proving the human authorized the spend.",
+    "<b>x402</b> (Coinbase) is a crypto-native protocol; Stripe integrated with it on Coinbase's Base blockchain in early 2026.",
+    "<b>MPP</b> (Stripe / Tempo) is built for micropayments — an agent can pay pennies per second under a preset cap."
+  ],
+  terms: [
+    ["ACP", "OpenAI + Stripe protocol powering ChatGPT's Instant Checkout."],
+    ["AP2", "Google's cross-vendor payment standard built on cryptographically signed mandates."],
+    ["x402", "Coinbase's crypto-native payment protocol, now bridging into mainstream payments via Stripe."],
+    ["MPP", "Stripe/Tempo protocol for micropayments — consumption-based commerce under a preset cap."],
+    ["Mandate", "A cryptographically signed permission slip proving a human authorized an agent to spend up to a set amount on a set category."]
+  ]
+},
+{
+  tag: "03 · Vocabulary",
+  title: "Vocabulary and the Engagement Split",
+  notes: [
+    "Three terms are not interchangeable: <b>the Agent Factory is the process</b>, the AI-Native Company is the output, AI Workers are the workforce.",
+    "The <b>system of record</b> is the substrate — the databases and ledgers holding the company's truth.",
+    "An <b>engagement</b> is a single bounded interaction between a human and a general agent.",
+    "<b>Problem-solving engagements</b> deliver an outcome directly and are governed by the Seven Principles.",
+    "<b>Manufacturing engagements</b> produce an AI Worker and are governed by the Seven Invariants — always using Claude Code or OpenCode."
+  ],
+  terms: [
+    ["Engagement", "A single bounded interaction between a human and a general agent."],
+    ["Problem-solving Engagement", "An engagement that delivers an outcome directly to the human; governed by the Seven Principles."],
+    ["Manufacturing Engagement", "An engagement that produces an AI Worker for the AI-Native Company; governed by the Seven Invariants."],
+    ["System of Record", "The authoritative databases, ledgers, and platforms holding the company's true state."],
+    ["Invariant vs. Reference Implementation", "An invariant is a structural rule that never changes; a reference implementation is the 2026 product that currently satisfies it."]
+  ]
+},
+{
+  tag: "04 · Paradigm & Engine",
+  title: "The Paradigm Shift and the Production Engine",
+  notes: [
+    "The SaaS era sold Software Tools priced Per-Seat; the Agent Factory era sells AI Employees priced <b>Per-Outcome</b>.",
+    "Human role shifts from Operator to <b>Supervisor & Verifier</b>; integration shifts from rigid APIs to MCP.",
+    "The <b>Production Engine</b> is the architecture that turns intent into a verified outcome — like a car factory turning raw steel into a finished car.",
+    "Three things power it: <b>Specs</b> (written instructions), <b>Skills</b> (packaged, portable abilities), and <b>Feedback Loops</b> (how the system improves).",
+    "<b>MCP</b> connects every AI Worker to every tool, the same way every device plugs into the same power outlet."
+  ],
+  terms: [
+    ["Production Engine", "The architecture that transforms intent into verified outcomes, station by station like a factory line."],
+    ["Specs", "The written instructions that tell AI Workers what needs to be done."],
+    ["Skills", "Packaged, portable, version-controlled abilities an AI Worker brings to a job (Agent Skills format)."],
+    ["MCP", "Model Context Protocol — the universal standard connecting every AI Worker to every tool."],
+    ["Feedback Loops", "The mechanism by which the system learns from results and improves over time."]
+  ]
+},
+{
+  tag: "05 · Economic Actors",
+  title: "Agents as Economic Actors",
+  notes: [
+    "Today's agents execute tasks; <b>tomorrow's agents will participate in markets</b> — the shift from agent-as-tool to agent-as-buyer.",
+    "An agent given a goal like 'reduce churn by 15%' can autonomously buy compute, negotiate data contracts, and provision cloud services within a budget envelope.",
+    "The real challenge is no longer capability — it's trust: <b>mandate enforcement, audit trails, and liability</b>.",
+    "When AI Workers become buyers, the company becomes <b>self-provisioning</b> — optimizing for cost, speed, and quality at once.",
+    "Builders should give agents <b>budgets, not just permissions</b>, and outcome contracts, not just API keys."
+  ],
+  terms: [
+    ["Mandate Enforcement", "Making sure an agent stays within the rules its human principal set."],
+    ["Audit Trail", "A complete record of every decision and transaction an agent made."],
+    ["Liability", "Who is legally responsible when an autonomous agent's action goes wrong."],
+    ["Outcome Contract", "An agreement defining the result an agent must deliver, rather than just granting it API access."],
+    ["Self-provisioning System", "A company that dynamically sources its own compute, data, and services rather than only consuming what humans allocate."]
+  ]
+},
+{
+  tag: "06 · Human in the Loop",
+  title: "The Human in the Loop and the 10-80-10 Rule",
+  notes: [
+    "AI paired with a human outperforms either alone — the Agent Factory <b>promotes</b> the human, from operator to supervisor.",
+    "Steve Jobs's <b>10-80-10 rule</b>: 10% setting vision, 80% letting the team execute, 10% final polish — now mapped onto AI employees.",
+    "First 10% = Intent (spec: goals, constraints, budget). Middle 80% = Execution (Workers compose tools, spawn sub-agents). Final 10% = Verification (human reviews and approves).",
+    "As of Feb 2026, <b>35% of Cursor's own merged pull requests</b> are produced by autonomous agents on cloud VMs.",
+    "The verification surface is shifting from reviewing diffs to reviewing <b>quickly reviewable artifacts</b> — logs, recordings, live previews."
+  ],
+  terms: [
+    ["10-80-10 Rule", "Steve Jobs's operating rhythm: 10% vision-setting, 80% execution, 10% final polish — now applied to directing AI employees."],
+    ["Technology Expert", "A developer redefined: someone who understands systems, data flows, and user needs, not just someone who hand-codes screens."],
+    ["Supervisor & Verifier", "The human's new role in the Agent Factory era, replacing 'Operator.'"],
+    ["Verification Surface", "What a human reviews to confirm correctness — shifting from line-level diffs to reviewable artifacts like logs and previews."],
+    ["Cloud Agent Era", "The period where agents work for hours on dedicated VMs and return artifacts rather than line-level changes."]
+  ]
+},
+{
+  tag: "07 · Two-Layer Model",
+  title: "Personal Agents and the Two-Layer Model",
+  notes: [
+    "The human remains the <b>principal</b> who defines purpose, values, constraints, and accountability.",
+    "<b>Identic AI</b> is a self-sovereign personal agent, owned by the individual, that translates human intent into delegated action.",
+    "The <b>Two-Layer Model</b>: the Edge Layer (personal identic agents, serving the individual) and the AI Workforce Layer (role-based AI Workers, serving the enterprise).",
+    "Personal agents without an industrialized workforce are just assistants with no one to command; a workforce without personal agents forces humans back into manual orchestration.",
+    "Specs are the <b>contract language</b> connecting the two layers."
+  ],
+  terms: [
+    ["Two-Layer Model", "The architecture pairing an Edge Layer of personal agents with an AI Workforce Layer of role-based Workers."],
+    ["Edge Layer", "The layer of personal identic agents that translate human intent and delegate to AI Workers."],
+    ["AI Workforce Layer", "The layer of role-based AI Workers that execute tasks and deliver verified outcomes for the enterprise."],
+    ["Principal", "The human who sets intent, defines budget, draws the authority envelope, and owns the outcome."],
+    ["Personal Agent", "An identic AI that holds an individual's context, judgment, and preferences and acts on their behalf."]
+  ]
+},
+{
+  tag: "08 · Seven Principles",
+  title: "Mode 1 — The Seven Principles of Problem Solving",
+  notes: [
+    "Problem-solving engagements are governed by the <b>Seven Principles</b>: engineers use Claude Code/OpenCode; domain experts use Claude Cowork/OpenWork.",
+    "<b>Bash is the Key</b> — the agent can act, not just describe. <b>Code as Universal Interface</b> — precision through schemas and structured formats, not prose.",
+    "<b>Verification as Core Step</b> — every meaningful output is checked before it ships; 'looks right' is the failure mode.",
+    "<b>Small, Reversible Decomposition</b> and <b>Persisting State in Files</b> — work moves in atomic, undoable steps, and the filesystem (not the volatile conversation) holds what mattered.",
+    "Two wrapper principles: <b>Constraints & Safety</b> (explicit permissions) and <b>Observability</b> (no black boxes)."
+  ],
+  terms: [
+    ["Bash is the Key", "Principle 1: the agent can act on the system, not just describe what to do."],
+    ["Code as Universal Interface", "Principle 2: precision comes from structured formats — schemas, tables, code — not prose."],
+    ["Verification as Core Step", "Principle 3: every meaningful output must be checked before it ships."],
+    ["Small, Reversible Decomposition", "Principle 4: work moves in atomic steps, each of which can be undone."],
+    ["Observability", "Principle 7: the human can see exactly what the agent did — no black boxes, no surprises."]
+  ]
+},
+{
+  tag: "09 · Invariants I1–I3",
+  title: "The Seven Invariants — Principal, Delegate, Management",
+  notes: [
+    "<b>Invariant 1 — the human is the principal.</b> Every legitimate chain of action originates with a human who owns intent, budget, and outcome.",
+    "<b>Invariant 2 — every human needs a delegate.</b> A personal agent (we ship OpenClaw) holds context and brokers work on the human's behalf, or the human becomes the bottleneck.",
+    "<b>Invariant 3 — the workforce needs a management layer.</b> A pile of AI Workers is not a company; a layer must hire, assign, govern, and retire them.",
+    "Without a management layer: <b>workers collide, budgets leak, the audit trail fractures</b>.",
+    "<b>Paperclip</b> is the management layer shipped — the AI-native company operating system."
+  ],
+  terms: [
+    ["Principal (Invariant 1)", "The human who originates every legitimate chain of action, owning intent, budget, and outcome."],
+    ["Delegate (Invariant 2)", "The personal agent (OpenClaw) that holds a human's context and brokers work on their behalf."],
+    ["Management Layer (Invariant 3)", "The operating system of the AI-Native Company: hires, assigns, governs, observes, and retires Workers."],
+    ["Paperclip", "The management layer product shipped — exposes the full workforce lifecycle as callable APIs."],
+    ["OpenClaw", "The delegate product shipped — the personal agent that carries identity, context, and authority envelope."]
+  ]
+},
+{
+  tag: "10 · Invariants I4–I7",
+  title: "The Seven Invariants — Engine, Record, Expansion, Nervous System",
+  notes: [
+    "<b>Invariant 4 — each Worker picks its own engine</b>, matching reliability and cost to the specific job.",
+    "<b>Invariant 5 — every Worker runs against a system of record.</b> A context window is transient; the system of record is permanent truth.",
+    "<b>Invariant 6 — the workforce is expandable under policy.</b> An authorized agent can hire a new Worker on demand without waking a human.",
+    "<b>Invariant 7 — the workforce runs on a nervous system</b>: external triggers, internal events, durability, and flow control on one substrate.",
+    "A six-step Worker at 95% per-step reliability completes only <b>74% of runs without durable execution</b>, but ~99.7% with step memoization and retry."
+  ],
+  terms: [
+    ["Engine (Invariant 4)", "The execution runtime a Worker runs on, chosen per-job for reliability and cost — e.g. Dapr Agents, Claude Managed Agents."],
+    ["System of Record (Invariant 5)", "The authoritative, durable store a Worker reads from and writes to, instead of inventing facts from context alone."],
+    ["Expandable Workforce (Invariant 6)", "The ability of an authorized agent to hire a new AI Worker on the fly, within the authority envelope."],
+    ["Nervous System (Invariant 7)", "The single event substrate carrying triggers, internal handoffs, durability, and flow control — realized by Inngest."],
+    ["Authority Envelope", "The bounded scope of budget and permission within which agents are allowed to act autonomously."]
+  ]
+},
+{
+  tag: "11 · Postgres",
+  title: "Postgres as the Operational Center of Gravity",
+  notes: [
+    "Invariant 5 doesn't say which store to use — this is the book's default: <b>consolidate by default, specialize deliberately</b>.",
+    "One Postgres instance can absorb documents (JSONB), search (tsvector + GIN), AI vectors (pgvector), a work queue (SKIP LOCKED), and even analytics (pg_duckdb).",
+    "Adding a specialized system for each data type creates a <b>data movement tax</b> — pipelines that drift and eat team time.",
+    "Keeping vectors beside their source data removes a whole class of sync bugs.",
+    "Apollo Hospitals consolidated Oracle, a warehouse, cache, and search into one Postgres platform for <b>extensibility</b> — an example, not proof."
+  ],
+  terms: [
+    ["Data Movement Tax", "The hidden cost of maintaining pipelines between specialized systems — not hosting bills, but team time spent on plumbing."],
+    ["JSONB", "Postgres's semi-structured document storage, replacing a separate document database."],
+    ["pgvector", "A Postgres extension storing AI embeddings directly beside the rows they describe."],
+    ["SELECT … FOR UPDATE SKIP LOCKED", "The Postgres pattern that turns an ordinary table into a safe work queue many Workers can pull from at once."],
+    ["Consolidate by Default", "The rule: start with one database and add a second only after proving you need it."]
+  ]
+},
+{
+  tag: "12 · Choosing Engines",
+  title: "The Named Engines and Picking One",
+  notes: [
+    "Four engines are not mutually exclusive — a factory may use all of them per Invariant 4.",
+    "Every engine has two planes: the <b>harness</b> (control plane — agent loop, tool routing) and the <b>compute</b> (execution plane — the sandbox).",
+    "'Can't fail' work → <b>Dapr Agents</b> (durable execution, auto-recovery). 'Shouldn't fail, don't want to operate' → Claude Managed Agents (hosted).",
+    "'Shouldn't fail, want portability' → OpenAI Agents SDK. 'Engineering fleet, parallel cloud agents' → <b>Cursor SDK</b>.",
+    "Triggers and sandboxes are orthogonal choices — any engine can be fired by Inngest/Routines and run on any swappable compute plane."
+  ],
+  terms: [
+    ["Harness", "The control plane of an engine: the agent loop, model calls, tool routing, approvals, tracing, recovery."],
+    ["Compute Plane", "The execution plane: the sandbox where model-directed code reads files, runs commands, writes artifacts."],
+    ["Dapr Agents", "The engine choice for mission-critical, 'can't fail' work — Apache 2.0, no vendor lock-in, runs on Kubernetes."],
+    ["Claude Managed Agents", "The fully managed, Anthropic-hosted engine for teams that don't want to operate infrastructure themselves."],
+    ["Cursor SDK", "The harness-first cloud agent platform built for parallel coding agent fleets."]
+  ]
+},
+{
+  tag: "13 · Reference Stack",
+  title: "The 2026 Reference Implementation and the FDE",
+  notes: [
+    "2026 reference stack: Delegate = OpenClaw, Management = Paperclip, Nervous system = <b>Inngest</b> (with Claude Code Routines fronting code-shaped events).",
+    "Skills follow the open <b>Agent Skills format</b> (agentskills.io): SKILL.md plus optional scripts/references/assets, loaded via progressive disclosure.",
+    "Hiring runs on <b>Claude Managed Agents</b> — the same tech serves as both an engine option and the meta-layer for workforce expansion.",
+    "This book trains the <b>Forward Deployed Engineer (FDE)</b> — one engineer running the full manufacturing engagement, spec to production.",
+    "The same person, hired directly rather than deployed at a client, is called the <b>AI-Native Company Architect</b> — the market supplies the name, the book trains the person."
+  ],
+  terms: [
+    ["Forward Deployed Engineer (FDE)", "The vendor-neutral engineer who manufactures Digital FTEs and assembles them into AI-Native Companies, deployed inside a client's company."],
+    ["AI-Native Company Architect", "The same FDE role, when the engineer is hired directly rather than deployed at a client."],
+    ["Reference Implementation", "The concrete 2026 product realizing an invariant — swappable, unlike the invariant itself."],
+    ["Agent Skills Format", "The open, portable skill-folder standard (SKILL.md + scripts/references/assets) from agentskills.io."],
+    ["Claude Code Routines", "The specialist trigger firing Claude Code when code-related events occur, alongside Inngest's broader workforce substrate."]
+  ]
+},
+{
+  tag: "14 · The Opportunity",
+  title: "The Workforce Opportunity and the Capital Shift",
+  notes: [
+    "AI unbundles jobs into tasks; some automate, but unbundling also creates new roles, businesses, and markets.",
+    "Professionals need <b>dynamic skill portfolios</b> rather than fixed career paths; by 2030 an estimated 59 of 100 workers globally need reskilling.",
+    "By January 2026, US data center construction hit <b>$42 billion annualized</b> while office construction fell 35% — spending on digital workplaces now exceeds spending on human ones.",
+    "Strategic sectors (data centers, semiconductors, critical minerals, energy tech) captured <b>44% of global greenfield FDI</b> in 2025, up from 16% in 2020.",
+    "Hyperscaler free cash flow is projected to turn <b>negative for the first time on record</b> as capital moves down the supply chain to chipmakers."
+  ],
+  terms: [
+    ["Dynamic Skill Portfolio", "A flexible, continuously updated set of capabilities professionals must build instead of relying on a fixed career path."],
+    ["Reskilling (2030 estimate)", "The World Economic Forum estimate that 59 of every 100 workers globally will need reskilling or upskilling by 2030."],
+    ["Data Center Construction Surge", "The 2026 crossover where US spending on data centers exceeds spending on office construction."],
+    ["Greenfield FDI Concentration", "The share of global foreign direct investment captured by strategic sectors — 16% in 2020, 44% in 2025."],
+    ["Hyperscaler Free Cash Flow", "The combined cash generation of major cloud platforms, projected to turn negative as AI capital spending surges."]
+  ]
+},
+{
+  tag: "15 · Where It Points",
+  title: "Where This Points — Three Trajectories",
+  notes: [
+    "By mid-2026, single-digit-headcount firms reported billion-dollar annualized revenue against AI-operated workforces — the AI-Native Company has already arrived.",
+    "<b>Physical AI Workers</b>: the same factory architecture extends to embodied ones — robots, autonomous vehicles — the invariants don't change, only the compute layer gains a body.",
+    "<b>Fully autonomous economic agents</b>: as AI Workers gain durable identity, payment rails, and reputation, they become economic actors buying and selling without a human in the loop per transaction.",
+    "<b>Cross-company workforce mobility</b>: AI Workers become portable, hired into one company and transferred or shared across several, under overlapping authority envelopes.",
+    "These three trajectories — embodiment, autonomy, mobility — are <b>extensions of the architecture, not departures from it</b>."
+  ],
+  terms: [
+    ["Physical AI Workers", "Embodied AI Workers (robots, autonomous vehicles) governed by the same invariants, with a runtime engine that drives actuators."],
+    ["Fully Autonomous Economic Agents", "AI Workers with durable identity and payment rails that buy, sell, and contract without human approval per transaction."],
+    ["Cross-Company Workforce Mobility", "AI Workers becoming portable — hired, transferred, or shared across multiple companies under overlapping authority envelopes."],
+    ["Authority Envelope", "The bounded scope of permission and budget that governs what an agent — human-directed or cross-company — may do."],
+    ["Legal Personhood (open question)", "One of the unresolved questions (with liability, taxation, antitrust) raised as agents approach full economic autonomy — not yet architectural, but urgent."]
+  ]
+}
+];
+
+const QUIZ = [
+  {
+    q: "A CFO worries that AI Workers becoming buyers means the firm loses budget control. According to the thesis, what does dynamic sourcing actually require?",
+    options: [
+      "Agents need budgets and outcome contracts, not just permissions and API keys — sourcing stays inside a human-set authority envelope",
+      "Nothing — once agents can buy things, human budget oversight is no longer necessary",
+      "Only the finance department may authorize any agent purchase, case by case",
+      "Dynamic sourcing only applies to compute, never to data or specialist services"
+    ],
+    correct: 0,
+    explain: "The thesis is explicit: 'design your agents and your infrastructure for economic participation from day one. Agents need budgets, not just permissions. Outcome contracts, not just API keys.' Sourcing is dynamic, not unsupervised."
+  },
+  {
+    q: "Why must the workforce have a management layer (Invariant 3) rather than just a pile of individual AI Workers?",
+    options: [
+      "Individual Workers are too slow without a shared vector database",
+      "A management layer makes coordination, accountability, and economic discipline possible — without it, budgets leak and the audit trail fractures",
+      "Regulations require a single named human to approve every Worker action",
+      "It reduces the number of engines a company needs to support"
+    ],
+    correct: 1,
+    explain: "The thesis states these are 'not emergent properties of individual agents' — a management layer (Paperclip in the reference stack) is what makes Workers legible as cost, latency, and outcome, and lets the company retire them on demand."
+  },
+  {
+    q: "What does the '95% per-step reliability' example under Invariant 7 illustrate?",
+    options: [
+      "That 95% reliability is always good enough for production workforces",
+      "That durable execution (step memoization, retry) is optional polish, not core to the nervous system",
+      "That without durability, a six-step Worker completes only 74% of runs, versus ~99.7% with memoization and retry — durability is what makes multi-step work production-grade",
+      "That nervous systems only matter for external triggers like webhooks, not internal handoffs"
+    ],
+    correct: 2,
+    explain: "The thesis uses this exact math to argue that without durable execution, reliability compounds against you — 'a workforce whose multi-step runs lose work to a single crash is not production; it is a demo.'"
+  }
+];
+
+let current = 0;
+const visited = new Set();
+const rail = document.getElementById('indexRail');
+const host = document.getElementById('cardHost');
+const meterFill = document.getElementById('meterFill');
+const meterText = document.getElementById('meterText');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+
+CARDS.forEach((c, i) => {
+  const b = document.createElement('button');
+  b.textContent = (i+1) + '. ' + c.tag.split('·')[1].trim();
+  b.dataset.idx = i;
+  b.addEventListener('click', () => goTo(i));
+  rail.appendChild(b);
+});
+
+function renderCard(i){
+  const c = CARDS[i];
+  visited.add(i);
+  host.innerHTML = `
+    <div class="tag">${c.tag}</div>
+    <h2>${c.title}</h2>
+    <ul class="notes">${c.notes.map(n => `<li>${n}</li>`).join('')}</ul>
+    <div class="terms">
+      <h3>Key Terms — tap to reveal</h3>
+      ${c.terms.map(([t,d],ti) => `
+        <div class="term" id="term-${ti}">
+          <button class="reveal" data-t="${ti}"><span>${t}</span><span class="plus">+</span></button>
+          <div class="def">${d}</div>
+        </div>`).join('')}
+    </div>
+  `;
+  host.querySelectorAll('.reveal').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const term = btn.closest('.term');
+      term.classList.toggle('open');
+      btn.querySelector('.plus').textContent = term.classList.contains('open') ? '−' : '+';
+    });
+  });
+  updateRail();
+  updateMeter();
+  prevBtn.disabled = i === 0;
+  nextBtn.disabled = i === CARDS.length - 1;
+}
+
+function updateRail(){
+  [...rail.children].forEach((b, i) => {
+    b.classList.toggle('active', i === current);
+    b.classList.toggle('visited', visited.has(i) && i !== current);
+  });
+  const activeBtn = rail.children[current];
+  if (activeBtn) activeBtn.scrollIntoView({block:'nearest', inline:'center'});
+}
+
+function updateMeter(){
+  const pct = Math.round((visited.size / CARDS.length) * 100);
+  meterFill.style.width = pct + '%';
+  meterText.textContent = `${visited.size} / ${CARDS.length} cards visited`;
+}
+
+function goTo(i){
+  current = Math.max(0, Math.min(CARDS.length - 1, i));
+  renderCard(current);
+}
+
+prevBtn.addEventListener('click', () => goTo(current - 1));
+nextBtn.addEventListener('click', () => goTo(current + 1));
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight') goTo(current + 1);
+  if (e.key === 'ArrowLeft') goTo(current - 1);
+});
+
+goTo(0);
+
+// Quiz
+const quizHost = document.getElementById('quizHost');
+const scoreLine = document.getElementById('scoreLine');
+let score = 0, answered = 0;
+
+QUIZ.forEach((q, qi) => {
+  const div = document.createElement('div');
+  div.className = 'qcard';
+  div.innerHTML = `
+    <p class="q">${qi+1}. ${q.q}</p>
+    ${q.options.map((opt, oi) => `<button class="opt" data-oi="${oi}" data-qi="${qi}">${String.fromCharCode(65+oi)}. ${opt}</button>`).join('')}
+    <div class="explain" id="explain-${qi}">${q.explain}</div>
+  `;
+  quizHost.appendChild(div);
+});
+
+quizHost.addEventListener('click', (e) => {
+  if (!e.target.classList.contains('opt')) return;
+  const qi = +e.target.dataset.qi;
+  const oi = +e.target.dataset.oi;
+  const card = e.target.closest('.qcard');
+  if (card.dataset.done) return;
+  card.dataset.done = '1';
+  answered++;
+  const opts = card.querySelectorAll('.opt');
+  opts.forEach(o => o.disabled = true);
+  const q = QUIZ[qi];
+  opts[q.correct].classList.add('correct');
+  if (oi === q.correct) score++;
+  else opts[oi].classList.add('wrong');
+  card.querySelector('.explain').classList.add('show');
+  if (answered === QUIZ.length){
+    scoreLine.style.display = 'block';
+    scoreLine.textContent = `Score: ${score} / ${QUIZ.length}`;
+  }
+});
+</script>
