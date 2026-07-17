@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Study Notes — The Agent Factory Thesis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=Barlow:wght@400;500;600&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue:#0B2545;
+    --blue-2:#13315C;
+    --blue-3:#1B4079;
+    --line:#2E5C94;
+    --chalk:#E8F1F8;
+    --chalk-dim:#8AA9C7;
+    --orange:#FF6B35;
+    --steel:#B4C5D6;
+    --display:'Archivo',system-ui,sans-serif;
+    --body:'Barlow',system-ui,sans-serif;
+    --mono:'Roboto Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--blue);
+    background-image:
+      linear-gradient(rgba(232,241,248,.045) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(232,241,248,.045) 1px,transparent 1px),
+      linear-gradient(rgba(232,241,248,.02) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(232,241,248,.02) 1px,transparent 1px);
+    background-size:96px 96px,96px 96px,16px 16px,16px 16px;
+    color:var(--chalk);
+    font-family:var(--body);
+    line-height:1.5;
+    padding:26px 18px 60px;
+  }
+  .wrap{max-width:1090px;margin:0 auto}
+
+  /* ---- title block ---- */
+  .tb{
+    border:1px solid var(--line);background:rgba(11,37,69,.72);
+    display:grid;grid-template-columns:1fr auto;
+  }
+  @media(max-width:660px){.tb{grid-template-columns:1fr}}
+  .tb-main{padding:20px 22px;border-right:1px solid var(--line)}
+  @media(max-width:660px){.tb-main{border-right:none;border-bottom:1px solid var(--line)}}
+  .tb-side{
+    padding:20px 22px;display:flex;flex-direction:column;justify-content:center;gap:6px;
+    font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--chalk-dim);white-space:nowrap;
+  }
+  .tb-side b{color:var(--orange);font-weight:500}
+  .kick{
+    font-family:var(--mono);font-size:.62rem;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--chalk-dim);margin-bottom:6px;
+  }
+  h1{
+    font-family:var(--display);font-weight:800;
+    font-size:clamp(1.7rem,4.6vw,2.9rem);line-height:1;letter-spacing:-.025em;
+  }
+  h1 em{font-style:normal;color:var(--orange)}
+  .sub{color:var(--steel);font-size:.92rem;margin:18px 0 22px;max-width:66ch}
+  .sub b{color:var(--chalk);font-weight:600}
+
+  /* ---- gauge ---- */
+  .gauge{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+  .gt{flex:1;height:4px;background:var(--blue-2);border:1px solid var(--line);overflow:hidden}
+  .gf{height:100%;width:0;background:var(--orange);transition:width .45s cubic-bezier(.2,.8,.2,1)}
+  .gx{font-family:var(--mono);font-size:.66rem;color:var(--chalk-dim);white-space:nowrap}
+
+  /* ---- layout ---- */
+  .rig{display:grid;grid-template-columns:228px 1fr;gap:18px;align-items:start}
+  @media(max-width:860px){.rig{grid-template-columns:1fr}}
+  .idx{
+    display:flex;flex-direction:column;position:sticky;top:18px;
+    border:1px solid var(--line);background:rgba(11,37,69,.72);
+  }
+  @media(max-width:860px){
+    .idx{position:static;flex-direction:row;overflow-x:auto}
+  }
+  .ib{
+    all:unset;cursor:pointer;display:flex;align-items:center;gap:9px;
+    padding:9px 12px;font-size:.78rem;color:var(--chalk-dim);
+    white-space:nowrap;transition:.15s;border-bottom:1px solid rgba(46,92,148,.4);
+  }
+  @media(max-width:860px){.ib{border-bottom:none;border-right:1px solid rgba(46,92,148,.4)}}
+  .ib:hover{background:var(--blue-2);color:var(--chalk)}
+  .ib:focus-visible{outline:2px solid var(--orange);outline-offset:-2px}
+  .ib[aria-selected="true"]{background:var(--blue-3);color:var(--chalk);font-weight:600}
+  .ib .n{font-family:var(--mono);font-size:.62rem;color:var(--chalk-dim)}
+  .ib[aria-selected="true"] .n{color:var(--orange)}
+  .ib .lt{margin-left:auto;width:5px;height:5px;border:1px solid var(--line);flex:none}
+  .ib.done .lt{background:var(--orange);border-color:var(--orange)}
+
+  /* ---- sheet ---- */
+  .sheet{border:1px solid var(--line);background:rgba(19,49,92,.5);padding:26px 26px 28px;position:relative}
+  @media(max-width:560px){.sheet{padding:20px 16px 22px}}
+  .sheet::before{
+    content:"";position:absolute;inset:6px;border:1px solid rgba(46,92,148,.35);pointer-events:none;
+  }
+  .plate{
+    display:flex;align-items:center;gap:10px;margin-bottom:12px;
+    font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--orange);
+  }
+  .plate .bar{flex:1;height:1px;background:var(--line)}
+  .sheet h2{
+    font-family:var(--display);font-weight:800;
+    font-size:clamp(1.3rem,3.2vw,1.95rem);line-height:1.04;
+    letter-spacing:-.02em;margin-bottom:18px;
+  }
+  .sheet ul{list-style:none;display:flex;flex-direction:column;gap:11px;margin-bottom:22px}
+  .sheet li{position:relative;padding-left:20px;font-size:.92rem;color:#CFDCE8}
+  .sheet li::before{
+    content:"";position:absolute;left:0;top:.55em;width:9px;height:1px;background:var(--orange);
+  }
+  .sheet li b{color:var(--chalk);font-weight:600}
+  .sheet code{
+    font-family:var(--mono);font-size:.82em;color:var(--orange);
+    background:rgba(255,107,53,.1);padding:1px 5px;
+  }
+
+  /* ---- callouts (terms) ---- */
+  .th{
+    display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+    border-top:1px solid var(--line);padding-top:14px;margin-bottom:10px;flex-wrap:wrap;
+  }
+  .th span:first-child{
+    font-family:var(--mono);font-size:.58rem;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--chalk-dim);
+  }
+  .hint{font-size:.66rem;color:var(--chalk-dim);font-style:italic}
+  .terms{display:flex;flex-direction:column;gap:2px}
+  .term{
+    all:unset;cursor:pointer;display:block;padding:8px 11px;
+    border:1px dashed transparent;transition:.15s;
+    font-size:.85rem;line-height:1.5;
+  }
+  .term:hover{background:rgba(46,92,148,.28)}
+  .term:focus-visible{outline:2px solid var(--orange);outline-offset:-2px}
+  .term.open{background:rgba(46,92,148,.28);border-color:var(--line)}
+  .tn{
+    font-family:var(--mono);font-size:.68rem;color:var(--orange);
+    font-weight:700;margin-right:9px;
+  }
+  .tname{color:var(--chalk);font-weight:600}
+  .ghost{
+    color:var(--chalk-dim);opacity:.5;font-family:var(--mono);font-size:.76rem;
+  }
+  .term.open .ghost{display:none}
+  .tdef{display:none;color:#B9CEE2}
+  .term.open .tdef{display:inline}
+
+  /* ---- nav ---- */
+  .nav{display:flex;gap:8px;margin-top:16px}
+  .btn{
+    all:unset;cursor:pointer;font-family:var(--mono);font-size:.66rem;
+    letter-spacing:.1em;text-transform:uppercase;padding:10px 15px;transition:.15s;
+  }
+  .btn:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+  .gh{border:1px solid var(--line);color:var(--chalk-dim)}
+  .gh:hover{border-color:var(--steel);color:var(--chalk)}
+  .sd{background:var(--orange);color:var(--blue);font-weight:700}
+  .sd:hover{background:var(--chalk)}
+  .btn[disabled]{opacity:.3;cursor:not-allowed}
+
+  /* ---- quiz ---- */
+  .quiz{margin-top:40px;border-top:1px solid var(--line);padding-top:30px}
+  .quiz h2{font-family:var(--display);font-weight:800;font-size:clamp(1.4rem,3.6vw,2.1rem);letter-spacing:-.02em}
+  .quiz h2 em{font-style:normal;color:var(--orange)}
+  .qsub{color:var(--chalk-dim);font-size:.86rem;margin:4px 0 20px}
+  .q{border:1px solid var(--line);background:rgba(19,49,92,.5);padding:18px;margin-bottom:11px}
+  .qn{font-family:var(--mono);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--orange);margin-bottom:8px}
+  .qt{font-size:.96rem;font-weight:600;margin-bottom:12px;line-height:1.4}
+  .opts{display:flex;flex-direction:column;gap:5px}
+  .opt{
+    all:unset;cursor:pointer;display:flex;gap:11px;align-items:flex-start;
+    border:1px solid var(--line);padding:10px 12px;font-size:.87rem;
+    color:#CFDCE8;transition:.14s;
+  }
+  .opt:hover:not(.lock){background:rgba(46,92,148,.3)}
+  .opt:focus-visible{outline:2px solid var(--orange);outline-offset:-2px}
+  .opt .l{font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--chalk-dim);flex:none;line-height:1.6}
+  .opt.ok{border-color:var(--orange);background:rgba(255,107,53,.14)}
+  .opt.ok .l{color:var(--orange)}
+  .opt.no{border-color:var(--steel);background:rgba(180,197,214,.1);opacity:.7}
+  .opt.lock{cursor:default}
+  .fb{
+    max-height:0;overflow:hidden;opacity:0;font-size:.82rem;color:var(--chalk-dim);
+    border-left:2px solid var(--orange);padding-left:12px;
+    transition:max-height .3s ease,opacity .25s ease,margin .3s ease;
+  }
+  .fb.show{max-height:220px;opacity:1;margin-top:12px}
+  .fb b{color:var(--chalk);font-weight:600}
+  .score{display:none;margin-top:16px;padding:20px;text-align:center;border:1px dashed var(--orange)}
+  .score.show{display:block}
+  .sn{font-family:var(--display);font-weight:800;font-size:2.3rem;line-height:1;color:var(--orange)}
+  .st{color:var(--chalk-dim);font-size:.84rem;margin-top:5px}
+
+  footer{
+    margin-top:38px;padding-top:14px;border-top:1px solid var(--line);
+    font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--chalk-dim);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  }
+  @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="tb">
+    <div class="tb-main">
+      <div class="kick">The AI Agent Factory · Thesis</div>
+      <h1>The Architectural <em>Argument</em></h1>
+    </div>
+    <div class="tb-side">
+      <div>Sheets · <b>10</b></div>
+      <div>Callouts · <b>50</b></div>
+      <div>Source · <b>class notes thesis</b></div>
+    </div>
+  </div>
+
+  <p class="sub">A thesis without an architecture is a metaphor; an architecture written in product names is a pitch. <b>Ten sheets.</b> The invariants are the thesis — the named products are just this year's furniture. <b>Callouts sit unfilled: name the definition first, then tap to dimension it.</b></p>
+
+  <div class="gauge">
+    <div class="gt"><div class="gf" id="fill"></div></div>
+    <div class="gx" id="meter">0 / 10 sheets</div>
+  </div>
+
+  <div class="rig">
+    <div class="idx" role="tablist" aria-label="Sheets" id="idx"></div>
+    <div>
+      <div class="sheet">
+        <div class="plate"><span id="plate">Sheet 01</span><span class="bar"></span></div>
+        <h2 id="title"></h2>
+        <ul id="points"></ul>
+        <div class="th">
+          <span>Callouts — 5 key terms</span>
+          <span class="hint">Recall, then tap.</span>
+        </div>
+        <div class="terms" id="terms"></div>
+      </div>
+      <div class="nav">
+        <button class="btn gh" id="prev">← Prev</button>
+        <button class="btn sd" id="next">Next sheet →</button>
+      </div>
+    </div>
+  </div>
+
+  <section class="quiz">
+    <h2>Load <em>Test</em></h2>
+    <p class="qsub">Three questions. One shot each — then the sheet tells you why.</p>
+    <div id="quiz"></div>
+    <div class="score" id="score">
+      <div class="sn" id="sn">0 / 3</div>
+      <div class="st" id="st"></div>
+    </div>
+  </section>
+
+  <footer>
+    <span>Source: class notes thesis · pulled live from Google Drive</span>
+    <span>← → to move sheets</span>
+  </footer>
+</div>
+
+<script>
+const DATA=[
+{t:"The Thesis",p:[
+"In the AI era, the most valuable companies won't sell software — they'll <b>manufacture AI employees</b> (<b>Digital FTEs</b>): role-based systems that compose tools, spawn specialist agents, and deliver outcomes at scale.",
+"These AI employees are the operating substrate of <b>AI-Native companies</b>, where the workforce is mostly AI and the product line is whatever that workforce ships: software, decisions, services, transactions.",
+"<b>You don't buy from these companies. You hire them.</b> The same way a business today hires an accounting firm or a legal team.",
+"The trajectory points further: AI employees are on the verge of becoming <b>economic actors in their own right</b> — autonomously buying services, procuring compute, acquiring data to accomplish what they're tasked with.",
+"<b>This is no longer a tool category. It's a company category.</b> The Agent Factory is the process that builds these companies."],
+k:[["AI employee / Digital FTE","A role-based AI system built to do a specific job — support rep, analyst, sales assistant — that uses tools, hands off to specialists, and completes real tasks at scale."],
+["AI-Native company","A firm where most of the workforce isn't human, and the product is whatever that AI workforce produces."],
+["Hire, don't buy","The shift: you don't purchase a product from these companies, you hire their AI workforce to do a job."],
+["Economic actor","An agent that buys services, pays for its own compute, and gathers its own data without a human approving each step."],
+["The Agent Factory","The process — methods and architecture — for designing AI employees, putting them to work, and running a business around them."]]},
+
+{t:"The Paradigm Shift",p:[
+"<b>Product:</b> the SaaS era sold software tools. The Agent Factory era sells AI employees.",
+"<b>Value metric:</b> per-seat subscriptions → <b>per-outcome results</b>. The SaaS era sold subscriptions; the Agent Factory era sells results.",
+"<b>Human role:</b> operator → <b>supervisor and verifier</b>. <b>Humans define intent. Agents execute. Humans verify outcomes.</b>",
+"<b>Resource acquisition:</b> humans procure tools and services → agents buy compute, data, and services autonomously.",
+"<b>Integration:</b> rigid point-to-point APIs → <b>MCP</b> (Model Context Protocol).",
+"<b>Focus:</b> <i>how</i> the work is done → <i>that</i> the work is done, verifiably correct.",
+"The middle step — typing, clicking, integrating, executing — is what AI absorbs. What's left for humans: <b>knowing what we actually want, and knowing whether we actually got it.</b>"],
+k:[["Per-outcome pricing","Value measured by results guaranteed, not seats sold."],
+["Supervisor and verifier","The human's new role — not operating the tool, but setting direction and checking the result."],
+["MCP","Model Context Protocol — the universal standard replacing rigid point-to-point APIs."],
+["Intent · Execution · Verification","What remains for humans after AI absorbs the middle: define intent, verify outcome."],
+["Industrialized execution","Execution moves from manual and visible to automated and industrialized."]]},
+
+{t:"The Vocabulary",p:[
+"Three terms get used constantly and are <b>not interchangeable</b>.",
+"<b>The Agent Factory is the <i>process</i></b> — the spec-driven, human-supervised, agent-tool-powered method (Claude Code / OpenCode) by which AI Workers are designed, manufactured, deployed. <b>Not a product you buy — a practice you adopt.</b>",
+"<b>The AI-Native Company is the <i>output</i></b> — the running enterprise: staffed by AI Workers, coordinated by a management layer, directed by humans at the edge. Also called the <b>Agentic Enterprise</b>.",
+"<b>AI Workers are the <i>workforce</i></b> — role-based agents that get hired, assigned, rostered, and retired. Also called Digital FTEs or Digital Workers.",
+"<b>The system of record is the <i>substrate</i></b> — the authoritative state the workforce runs against: databases, ledgers, platforms holding the truth.",
+"Said another way: <b>The Factory builds the Company; the Company employs Workers; the Workers run against the system of record.</b>",
+"<b>An engagement</b> is a single bounded interaction between a human and a general agent."],
+k:[["The Factory (process)","The method by which AI Workers are designed, manufactured, and deployed. A practice, not a purchase."],
+["The Company (output)","The running enterprise the Factory produces — the Agentic Enterprise."],
+["AI Workers (workforce)","The role-based agents that get hired, assigned, rostered, and retired."],
+["System of record (substrate)","The authoritative state the workforce runs against — the truth of the company."],
+["Engagement","A single bounded interaction between a human and a general agent."]]},
+
+{t:"The Production Engine",p:[
+"<b>The production engine is the most important idea in the thesis.</b> It's the system that takes what you want and turns it into what you get — everything between your instruction and the final result.",
+"<b>It's not an app you download.</b> It's an architecture — a blueprint and design principles for building systems where AI Workers are created, combined, and put to work.",
+"The car-factory analogy: raw materials load in, the steel moves to welding, then painting, then assembly, and a finished car rolls out inspected. <b>The Agent Factory follows the exact same pattern</b> — the raw material is your <b>intent</b>, the stations are <b>AI Workers</b>, the finished product is a <b>verified outcome</b>.",
+"Three things power it: <b>Specs</b> (written instructions telling Workers what to do), <b>Skills</b> (packaged abilities — portable, version-controlled folders following the open Agent Skills format at agentskills.io), and <b>feedback loops</b> (how the system learns and improves).",
+"Connecting it all is <b>MCP</b> — a universal standard letting every Worker talk to every tool, <b>the way every device in a real factory plugs into the same type of power outlet.</b>",
+"<b>Skills and MCP are the two open standards the factory floor runs on</b> — Skills for capability, MCP for connectivity."],
+k:[["Production engine","The architecture between intent and outcome. Not an app — a blueprint."],
+["Specs","The written instructions that tell AI Workers what needs to be done."],
+["Skills","Packaged abilities as portable, version-controlled folders — SKILL.md, loaded via progressive disclosure."],
+["Feedback loops","How the system learns from its results and improves over time."],
+["Capability and connectivity","Skills for capability, MCP for connectivity — the two open standards of the factory floor."]]},
+
+{t:"The 10-80-10 Rule",p:[
+"Steve Jobs's rule: spend <b>10% setting the vision</b>, let the team execute for <b>80%</b>, return for the final <b>10% to polish</b>. Jobs evolved from a micromanager dictating every pixel of the Mac's calculator to a leader who trusted talented people with the middle 80%.",
+"Replace “talented people” with “AI employees” and you have the Agent Factory's operating rhythm. <b>First 10% — Intent:</b> the human defines the spec (goals, constraints, budget, permissions). <b>Middle 80% — Execution:</b> AI Workers compose tools, spawn sub-agents, deliver. <b>Final 10% — Verification:</b> the human reviews, refines, approves.",
+"As of February 2026, <b>Cursor reports 35% of the pull requests merged into its own product are produced by autonomous agents</b> running on cloud VMs. Its CEO projects the vast majority of development work will look this way within a year.",
+"Anthropic's Claude Code retrospective supplies the same measurement at individual scale: <b>about 10% of its creator's code in February 2025, 30–40% by May, all of it by that winter.</b>",
+"<b>The verification surface is changing.</b> Agents now work for hours on VMs and return <i>quickly reviewable</i> artifacts — logs, video recordings, live previews — rather than line-level diffs. <b>A human cannot read twelve diffs at once, but they can scan twelve previews.</b>",
+"<b>The 10-80-10 rhythm is no longer a prediction. It is a measurement of where the frontier already operates.</b>"],
+k:[["10-80-10","10% intent, 80% execution, 80% delegated — then 10% verification. Jobs's rule, quantified for AI."],
+["The Cursor datapoint","35% of Cursor's own merged pull requests produced by autonomous agents, February 2026."],
+["Artifact, not diff","The final 10% is being redesigned around reviewable artifacts — logs, previews — not line-level changes."],
+["Attention at the boundaries","The pattern allocates human attention where it's irreplaceable, letting execution scale without bottlenecks."],
+["Why it works","You stop spending 80% of your time on execution, and 100% of your attention on the 20% only a human can do."]]},
+
+{t:"Agents as Economic Actors",p:[
+"Today's agents execute tasks. Tomorrow's agents <b>participate in markets</b> — the shift from agent-as-tool to agent-as-buyer.",
+"<b>The payment rails are already live in production.</b> Four open protocols shipping 2025–2026 give agents the ability to authorize payments, check out, and settle transactions without a human in the loop for each step.",
+"<b>ACP</b> (OpenAI + Stripe) powers ChatGPT's Instant Checkout. <b>AP2</b> (Google) is a cross-vendor standard backed by 60+ companies, built around <b>cryptographically signed mandates</b> — a digital permission slip proving the human authorized spending up to an amount on a category.",
+"<b>x402</b> (Coinbase) is crypto-native; Stripe integrated with it on Base in early 2026. <b>MPP</b> (Stripe / Tempo) is built for micropayments — an agent streaming a service pays pennies per second under a preset cap.",
+"Example: an agent told “reduce customer churn by 15%” autonomously purchases compute to train a model, negotiates an API contract for enrichment data, provisions cloud services — <b>all within a budget and permission envelope set by its human supervisor.</b>",
+"<b>The trust layer is where the action is now</b> — mandate enforcement, audit trails, liability — <b>not capability</b>, because the agent can already do the work.",
+"For builders: <b>agents need budgets, not just permissions. Outcome contracts, not just API keys.</b>"],
+k:[["The four rails","ACP, AP2, x402, MPP — the payment protocols that make agent-as-buyer live, not a 2030 prediction."],
+["Signed mandate","A cryptographically signed permission slip proving a human authorized specified spending."],
+["Authority envelope","The budget and permission boundary a human supervisor sets around an agent's autonomy."],
+["The trust layer","Mandate enforcement, audit trails, liability — the real challenge, since capability is solved."],
+["Self-provisioning","The company stops consuming resources humans allocate and starts sourcing them dynamically."]]},
+
+{t:"The Two Modes",p:[
+"General agents can be used two very different ways.",
+"<b>Mode 1 — the problem-solving engagement.</b> A human uses a general agent to solve an immediate problem. The work ships, the session ends. <b>No AI Worker is manufactured — the general agent <i>is</i> the worker for that engagement.</b> Engineers use Claude Code or OpenCode; domain experts use Claude Cowork or OpenWork.",
+"<b>Mode 2 — the manufacturing engagement.</b> A human uses a general agent to build something that survives the session: a custom AI Worker. <b>Always Claude Code or OpenCode, regardless of who's operating — because building a Worker is fundamentally a coding task</b>, even when the Worker's domain is finance or law.",
+"<b>Most professionals live in Mode 1 long before they ever ship a Worker.</b>",
+"Mode 1 is governed by the <b>Seven Principles</b>: Bash is the Key (the agent acts, not just describes) · Code as Universal Interface (precision through schemas and tables, not prose) · <b>Verification as Core Step</b> (“looks right” is the failure mode) · Small, Reversible Decomposition · Persisting State in Files (the conversation is volatile, the filesystem durable) · Constraints and Safety (<b>autonomy is earned per task type, not granted by default</b>) · Observability.",
+"Mode 2 is governed by the <b>Seven Invariants</b>. <b>The principles govern the session. The invariants govern the architecture. The Principles are the conduct. The Invariants are the constitution.</b>",
+"This book trains the person the market calls a <b>Forward Deployed Engineer</b> — deployed inside a client's company they're an FDE; hired directly, the same engineer is the AI-Native Company Architect. <b>The book trains the person. The market supplies the name.</b>"],
+k:[["Mode 1","Problem-solving engagement — the agent is the worker, the outcome ships, the session ends."],
+["Mode 2","Manufacturing engagement — the agent builds a Worker that survives the session."],
+["Seven Principles","The operating discipline of a session: Bash, Code as Interface, Verification, Decomposition, Persistence, Constraints, Observability."],
+["Conduct vs constitution","Principles govern the session; Invariants govern the architecture."],
+["Forward Deployed Engineer","The role this book trains — vendor-neutral, carrying the whole pipeline, spec to production."]]},
+
+{t:"Invariants 1–4",p:[
+"An <b>invariant</b> is a structural requirement true across every version of the system, regardless of which product realizes it. A <b>reference implementation</b> is the concrete product used in 2026 to realize one. <b>The building stands even when the furniture changes.</b>",
+"<b>Invariant 1 — The human is the principal.</b> Every legitimate chain of action originates with a human who sets intent, defines the budget, draws the authority envelope, owns the outcome. <b>A system that acts without a human principal is not autonomous — it is unowned.</b> Failure if absent: liability evaporates; the budget has no owner; the outcome has no judge.",
+"<b>Invariant 2 — Every human needs a delegate.</b> A personal agent holding your context, judgment, and authority envelope, brokering downstream work. Without it, <b>scale collapses to human typing speed.</b> Currently realized by OpenClaw.",
+"<b>Invariant 3 — The workforce needs a management layer.</b> <b>A pile of AI Workers is not a company.</b> The layer hires, assigns, enforces budgets, governs, keeps the ledger, and retires Workers. It's to the AI-Native Company what an operating system is to a fleet of processes. Failure if absent: workers collide, budgets leak, <b>retired Workers keep running because no layer is responsible for stopping them.</b> Currently Paperclip.",
+"<b>Invariant 4 — Each worker picks its own engine.</b> Per Worker, not per company. Forcing one engine on the whole workforce either over-pays for reliability the job doesn't need or under-pays for reliability it requires. <b>The company either cannot afford its reliable workers or cannot trust its cheap ones.</b>"],
+k:[["Invariant","A structural requirement that stays true across every version of the system."],
+["Reference implementation","The concrete product realizing an invariant this year — swappable tomorrow."],
+["The principal","The human who sets intent, budget, and envelope, and owns the outcome. Non-transferable."],
+["The delegate","A personal agent holding your context and authority, brokering work so you aren't the bottleneck."],
+["The management layer","The workforce OS — hire, assign, govern, observe, retire."]]},
+
+{t:"Invariants 5–7",p:[
+"<b>Invariant 5 — Every Worker runs against a system of record.</b> Engine is what a Worker runs <i>on</i>; system of record is what it runs <i>against</i>. <b>A context window is transient. A system of record is permanent.</b> Without it, agents hallucinate facts, double-write transactions, and produce artifacts no auditor can reconstruct. <b>It is what separates execution from plausible-sounding fiction.</b>",
+"Failure if absent: <b>two Workers tell the same customer two different things because their context windows disagreed.</b> Liability becomes untraceable because the truth lived only in tokens since discarded.",
+"<b>Postgres as the operational center of gravity.</b> The rule: <b>consolidate by default, specialize deliberately.</b> One Postgres handles documents (JSONB), search (tsvector + GIN), vectors (pgvector), a work queue (SELECT … FOR UPDATE SKIP LOCKED), even analytics. Every extra system is a pipeline that can drift — <b>the data movement tax</b> isn't the hosting bill, it's half your team maintaining plumbing. <b>The mistake is reaching for the specialized tool <i>first</i>, because a tutorial told you to.</b>",
+"<b>Invariant 6 — The workforce is expandable under policy.</b> Hiring is a callable capability: an authorized agent can generate a prompt, provision a runtime, register a new Worker — <b>without waking a human.</b> <b>Expansion without policy is runaway. Policy without expansion is a frozen roster. Both fail.</b>",
+"<b>Invariant 7 — The workforce runs on a nervous system.</b> External triggers wake it, internal events coordinate it, durability preserves it, flow control protects it. <b>A six-step Worker at 95% per-step reliability completes only 74% of runs without durable execution — and ~99.7% with step memoization and selective retry.</b> The difference between a workforce that ships and one that drops one run in four on the floor.",
+"<b>Seven invariants. One chain.</b> Swap any named product tomorrow and the architecture still stands — <b>because the architecture was never the products. It was the invariants.</b>"],
+k:[["System of record","The authoritative store a Worker reads from and writes to. What separates execution from fiction."],
+["Data movement tax","The real cost of a fragmented stack — not hosting, but the team maintaining pipelines instead of features."],
+["Consolidate by default","Start with one database; add a second only when a benchmark on your own workload proves you need it."],
+["Expandable under policy","Hiring as a callable capability, bounded by the authority envelope."],
+["Durable execution","Step memoization and selective retry — the difference between 74% and ~99.7% run completion."]]},
+
+{t:"Where This Points",p:[
+"<b>The category has arrived.</b> By mid-2026, single-digit-headcount firms were reporting billion-dollar annualized revenue against AI-operated workforces — a category that didn't exist three years earlier. <b>The thesis predicted the shape of the firm; the firm has arrived.</b>",
+"<b>The human is promoted, not eliminated.</b> For most tasks, AI paired with a human outperforms either alone. From operator to supervisor. From typist to editor. From coder to architect of outcomes. <b>The developer doesn't disappear. The developer does <i>more</i>.</b>",
+"<b>The workforce opportunity.</b> AI unbundles jobs into tasks — but unbundling also creates new combinations. The future workforce builds <b>dynamic skill portfolios</b> rather than relying on fixed career paths. By 2030, <b>59 of every 100 workers globally are expected to require reskilling or upskilling.</b>",
+"<b>The capital story.</b> By January 2026 US data center construction hit $42B annualized while office construction fell 35% from its peak — <b>America now spends more building workplaces for digital workers than for human ones.</b> Hyperscaler free cash flow is projected negative for the first time on record.",
+"<b>The honest caveat.</b> Every prior capital surge this steep ended in a bust — Railway Mania, the Dot-Com boom. <b>But a bursting investment bubble and a failed technology are not the same event.</b> Railway Mania ruined investors; Britain kept the railways. <b>The seven invariants do not depend on the bubble surviving. The factories get built either way.</b>",
+"<b>Three trajectories:</b> <b>Physical AI Workers</b> (the compute layer adds a body; the invariants don't change) · <b>Fully autonomous economic agents</b> (legal personhood, liability, taxation become urgent) · <b>Cross-company workforce mobility</b> (the labor market for AI Workers becomes a real market).",
+"<b>The invariants hold. The realizations evolve. The thesis stands.</b>"],
+k:[["Dynamic skill portfolio","Building combinations of capability rather than relying on a fixed career path."],
+["Promotion, not replacement","Operator → supervisor. Typist → editor. Coder → architect of outcomes."],
+["Bubble ≠ failed technology","Railway Mania ruined investors; Britain kept the railways. Capital cycle and capability are independent."],
+["The three trajectories","Embodiment, autonomy, mobility — extensions of the architecture, not departures from it."],
+["The closing claim","The invariants hold. The realizations evolve. The thesis stands."]]}
+];
+
+const QUIZ=[
+{q:"The thesis names products — OpenClaw, Paperclip, Inngest — for each invariant. Why does it insist the architecture survives if all of them are replaced?",
+ o:["Because the products are open-source and can be forked",
+    "Because an invariant is a structural requirement true across every version of the system; the named product is just this year's reference implementation",
+    "Because the products are interchangeable clones of each other",
+    "Because the thesis expects them all to fail"],
+ a:1,
+ f:"<b>“A thesis without an architecture is a metaphor. An architecture written in product names is a pitch.”</b> The invariant is the rule that never changes; the reference implementation is today's best fit. As the thesis puts it — <b>the building stands even when the furniture changes.</b>"},
+{q:"Invariant 5 says a Worker must run <b>against</b> a system of record. What specifically fails without one?",
+ o:["The Worker runs slower because it has to recompute state",
+    "The Worker cannot be billed correctly",
+    "Outputs drift from reality — two Workers tell the same customer different things, and liability becomes untraceable",
+    "The Worker cannot be retired by the management layer"],
+ a:2,
+ f:"<b>A context window is transient; a system of record is permanent.</b> Without an authoritative store, agents hallucinate facts, double-write transactions, and lose work between sessions. The truth lived only in tokens that have since been discarded — so the company degrades into <b>a generator of confident artifacts with no operational substrate underneath.</b>"},
+{q:"Cursor reports 35% of its own merged pull requests come from autonomous agents. What does the thesis say this measures?",
+ o:["That the 10-80-10 rhythm is a prediction about 2030",
+    "That coding agents have replaced Cursor's developers",
+    "That the frontier already operates on the 10-80-10 rhythm — humans define problems and review artifacts rather than guiding line by line",
+    "That Cursor's engineers are no longer verifying the work"],
+ a:2,
+ f:"<b>“The 10-80-10 rhythm is no longer a prediction. It is a measurement of where the frontier already operates.”</b> The humans didn't leave — they moved to the bookends. And note the verification surface shifted with them: agents return <b>reviewable artifacts</b>, not diffs, because a human cannot read twelve diffs at once but can scan twelve previews."}
+];
+
+let cur=0;
+const seen=new Set();
+const $=id=>document.getElementById(id);
+
+DATA.forEach((d,i)=>{
+  const b=document.createElement('button');
+  b.className='ib';b.type='button';b.role='tab';
+  b.innerHTML=`<span class="n">${String(i+1).padStart(2,'0')}</span><span>${d.t}</span><span class="lt"></span>`;
+  b.onclick=()=>go(i);
+  $('idx').appendChild(b);
+});
+
+function go(i){
+  cur=i;seen.add(i);
+  const d=DATA[i];
+  $('plate').textContent='Sheet '+String(i+1).padStart(2,'0')+' of 10';
+  $('title').textContent=d.t;
+  $('points').innerHTML=d.p.map(x=>`<li>${x}</li>`).join('');
+  $('terms').innerHTML=d.k.map(([t,def],j)=>
+    `<button class="term" type="button"><span class="tn">${String(i+1).padStart(2,'0')}.${j+1}</span><span class="tname">${t}</span><span class="ghost"> ⟶ ?</span><span class="tdef"> — ${def}</span></button>`).join('');
+  document.querySelectorAll('.term').forEach(el=>{el.onclick=()=>el.classList.toggle('open')});
+  document.querySelectorAll('.ib').forEach((t,n)=>{
+    t.setAttribute('aria-selected',n===i);
+    if(seen.has(n))t.classList.add('done');
+  });
+  $('prev').disabled=i===0;
+  $('next').disabled=i===DATA.length-1;
+  $('fill').style.width=(seen.size/DATA.length*100)+'%';
+  $('meter').textContent=`${seen.size} / ${DATA.length} sheets`;
+}
+$('prev').onclick=()=>go(Math.max(0,cur-1));
+$('next').onclick=()=>go(Math.min(DATA.length-1,cur+1));
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowLeft'&&cur>0)go(cur-1);
+  if(e.key==='ArrowRight'&&cur<DATA.length-1)go(cur+1);
+});
+
+let done=0,right=0;
+QUIZ.forEach((q,qi)=>{
+  const d=document.createElement('div');
+  d.className='q';
+  d.innerHTML=`<div class="qn">Test ${qi+1} of 3</div><div class="qt">${q.q}</div>
+    <div class="opts">${q.o.map((o,oi)=>
+      `<button class="opt" type="button" data-o="${oi}"><span class="l">${'ABCD'[oi]}</span><span>${o}</span></button>`).join('')}</div>
+    <div class="fb">${q.f}</div>`;
+  $('quiz').appendChild(d);
+  const opts=d.querySelectorAll('.opt');
+  opts.forEach(o=>o.onclick=()=>{
+    if(d.dataset.done)return;
+    d.dataset.done='1';
+    const pick=+o.dataset.o;
+    if(pick===q.a)right++;
+    opts.forEach((x,xi)=>{
+      x.classList.add('lock');
+      if(xi===q.a)x.classList.add('ok');
+      else if(xi===pick)x.classList.add('no');
+    });
+    d.querySelector('.fb').classList.add('show');
+    if(++done===QUIZ.length){
+      $('sn').textContent=right+' / 3';
+      $('st').textContent=
+        right===3?"Load-bearing. You know the invariants from the furniture.":
+        right===2?"Close. Re-read the sheet behind the one you missed.":
+        "Back to the drawings — the sheets are right there.";
+      $('score').classList.add('show');
+    }
+  });
+});
+
+go(0);
+</script>
+</body>
+</html>
