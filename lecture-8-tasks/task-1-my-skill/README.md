@@ -62,13 +62,13 @@ Opened a **brand-new chat**. No slash command, no naming the skill. Pasted raw n
 Make study notes from this:
 ```
 
-![Auto-trigger test — the skill fires from a natural request with no slash command](screenshots/01-auto-trigger.png)
+![Auto-trigger test — the skill fires from a natural request with no slash command](evidence-images/picture-1.png)
 
 <!-- TODO: describe what this screenshot shows and whether the skill fired -->
 
 ### 2. The output
 
-![The rendered artifact — cards, revealed key terms, progress meter](screenshots/02-artifact.png)
+![The rendered artifact — cards, revealed key terms, progress meter](evidence-images/picture-2.png)
 
 <!-- TODO: describe what the skill produced -->
 
@@ -78,7 +78,7 @@ Make study notes from this:
 When would you use the weekly-study-notes skill, and when would you NOT use it?
 ```
 
-![Description check — the model paraphrases the description back](screenshots/03-description-check.png)
+![Description check — the model paraphrases the description back](evidence-images/picture-3.png)
 
 <!-- TODO: paste the paraphrase you got back, and whether it was wider or narrower than intended -->
 
