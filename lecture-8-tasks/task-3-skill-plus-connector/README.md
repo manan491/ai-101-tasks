@@ -40,7 +40,7 @@ Step 3 of the task, and the part that matters. Opened the real `class notes thes
 | Cursor: 35% of merged PRs from autonomous agents, Feb 2026 | 05 | YES |
 | 74% run completion without durable execution, ~99.7% with step memoization | 09 | YES |
 | US data center construction $42B annualized; office construction down 35% | 10 | YES |
-| Four payment rails: ACP, AP2, x402, MPP | 06 | <!-- TODO --> |
+| Four payment rails: ACP, AP2, x402, MPP | 06 | YES |
 
 A connector returning a *confident* summary and one returning a *correct* summary look identical from the chat window. Opening the source is the only way to tell them apart — which is why the task grades this step and not the "did it produce something" step.
 
