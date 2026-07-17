@@ -62,13 +62,13 @@ Opened a **brand-new chat**. No slash command, no naming the skill. Pasted raw n
 Make study notes from this:
 ```
 
-![Auto-trigger test — the skill fires from a natural request with no slash command](evidence-images/picture-1.png)
+![Auto-trigger test — the skill fires from a natural request with no slash command](evidence/picture-1.PNG)
 
 <!-- TODO: describe what this screenshot shows and whether the skill fired -->
 
 ### 2. The output
 
-![The rendered artifact — cards, revealed key terms, progress meter](evidence-images/picture-2.png)
+![The rendered artifact — cards, revealed key terms, progress meter](evidence/picture-2.PNG)
 
 <!-- TODO: describe what the skill produced -->
 
@@ -78,7 +78,7 @@ Make study notes from this:
 When would you use the weekly-study-notes skill, and when would you NOT use it?
 ```
 
-![Description check — the model paraphrases the description back](evidence-images/picture-3.png)
+![Description check — the model paraphrases the description back](evidence/picture-3.PNG)
 
 <!-- TODO: paste the paraphrase you got back, and whether it was wider or narrower than intended -->
 
@@ -96,10 +96,4 @@ Three weak spots I can name in the current description:
 - **"cleaned up or organized" overlaps the negative trigger.** "Clean up my notes" and "summarize my notes" are the same sentence to most people — the positive and negative triggers disagree.
 - **The artifact output isn't in the trigger logic.** The description promises an HTML tool but never says "use when you want an interactive study tool," so someone wanting a quick reference gets a whole artifact.
 
-## Files
 
-| File | What it is |
-|---|---|
-| `weekly-study-notes/SKILL.md` | The skill itself |
-| `study-notes-skills-connectors.html` | Sample output — the Lecture 8 notes as a working artifact |
-| `screenshots/` | Evidence for each test above |
